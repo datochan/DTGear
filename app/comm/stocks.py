@@ -67,8 +67,8 @@ def report_publish_time(_date, code):
     """
     global REPORT_PUBLISH_BUFFER
     try:
-        result_df = REPORT_PUBLISH_BUFFER.get(_date, None)
-        if result_df is None or len(result_df) <= 0:
+        _result_df = REPORT_PUBLISH_BUFFER.get(_date, None)
+        if _result_df is None or len(_result_df) <= 0:
             REPORT_PUBLISH_BUFFER[_date] = pd.read_csv(config.get("files").get("rt_item") % (PROJECT_ROOT, _date), header=0)
             REPORT_PUBLISH_BUFFER[_date]['code'] = REPORT_PUBLISH_BUFFER[_date]['code'].map(lambda x: str(x).zfill(6))
             REPORT_PUBLISH_BUFFER[_date] = REPORT_PUBLISH_BUFFER[_date].fillna(0)
@@ -362,16 +362,17 @@ def report_list(code=None, _date=None):
 
 
 if __name__ == "__main__":
-    report_publish_time("20171231", "000001")
     # import datetime
     #
     # stock_df = pd.DataFrame()
     # start = datetime.datetime.now()
-    # result_df = report_list("000001", "20171231")
+    result_df = report_list("000001", "20180930")
     # result_df = result_df.sort_values(['date'], ascending=1)
-    # print("分红: %f" % result_df[125])
-    # print("总股本: %f" % result_df[238])
-    # print("流通股本: %f" % result_df[239])
+    print("每股收益: %f" % result_df[1])
+    print("每股净资产: %f" % result_df[4])
+    print("净资产: %f" % result_df[72])
+    print("净利润: %f" % result_df[96])
+    print("净资产收益率: %f" % result_df[6])
     # end = datetime.datetime.now()
     #
     # m, s = divmod((end - start).seconds, 60)

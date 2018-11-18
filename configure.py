@@ -21,19 +21,23 @@ config = {
         "stock_fin": "http://down.tdx.com.cn:8001/fin",
         "fin_list_file": "gpcw.txt",  # 财务数据文件列表
 
+        'china_bond_list': 'http://yield.chinabond.com.cn/cbweb-pbc-web/pbc/historyQuery?startDate=%s&endDate=%s'
+                           '&gjqx=0&qxId=hzsylqx&locale=cn_ZH',
+        'china_bond_item': 'http://yield.chinabond.com.cn/cbweb-pbc-web/pbc/queryGjqxInfo?&workTime=%s&locale=cn_ZH',
         "server_time": "https://s.thsi.cn/js/chameleon/time.%d.js",  # 用于更新同花顺服务器时间解密cookie信息
         "report_time": "http://data.10jqka.com.cn/financial/yypl/date/%s/board/ALL/field/stockcode/order/DESC/page/%d/ajax/1/"
     },
     "files": {
         'calendar': "%s/data/calendar.csv" % PROJECT_ROOT,  # 股票交易日历
-        'bound': "%s/data/bound.csv" % PROJECT_ROOT,
+        'bond': "%s/data/bond.csv" % PROJECT_ROOT,
         'stocks': "%s/data/stocks.csv" % PROJECT_ROOT,
+        'stock_a': "%s/data/a.csv" % PROJECT_ROOT,
         'st': "%s/data/st.csv" % PROJECT_ROOT,
         'bonus': "%s/data/bonus.csv" % PROJECT_ROOT,
         'reports': "%s/data/reports.csv" % PROJECT_ROOT,         # 股票财报目录
         'report_item': "%s/data/reports/%s.zip",  # 股票财报目录
         'rt_item': "%s/data/reports/rt%s.csv",  # 股票财报目录
-        'stock_index': "%s/data/index/%s.csv",    # 指定指数的历史成分列表
+        'index': "%s/data/indexes/%s.csv",    # 指定指数的历史成分列表
     },
     "tdx": {
         "server1": {

@@ -70,7 +70,8 @@ def lyr_with(_date, _stock, _price):
     """
     _today = date.str_to_datetime(str(_date))
     _cur_item = report_with_act(_date, _stock)
-    if _cur_item is None:
+    if _cur_item is None or _cur_item['tcs'] == 0.0:
+        # 刚上市还没公布最新财报或者没有股本信息
         return 0.0
 
     _year_report = report_with_plan(int("%d1231" % (_today.year-1)), _stock)
@@ -78,13 +79,17 @@ def lyr_with(_date, _stock, _price):
     if _year_report is None or _year_report["publish"] > _date:
         # 去年的年报还没披露, 取前年的
         _year_report = report_with_plan(int("%d1231" % (_today.year-2)), _stock)
+        # 前年还没上市，也没财报信息
         if _year_report is None:
             return 0.0
 
+    if _year_report['eps'] == 0.0 or _year_report['tcs'] == 0.0:
+        # 前年还没上市，也没足够的财报信息
+        return 0.0
+
     # 用年报的每股收益* 因股本变动导致的稀释
     lyr_eps = _year_report['eps'] * (_year_report['tcs']/_cur_item['tcs'])
-
-    return _price / lyr_eps
+    return 0.0 if lyr_eps == 0 else _price / lyr_eps
 
 
 def pe_ttm_with(_date, _stock, _price):
@@ -101,7 +106,7 @@ def pe_ttm_with(_date, _stock, _price):
         return lyr_with(_date, _stock, _price)
 
     _cur_item = report_with_act(_date, _stock)
-    if _cur_item is None:
+    if _cur_item is None or _cur_item['tcs'] == 0.0:
         return 0.0
 
     (__year, _report_quarter) = date.quarter(int(_cur_item['date']))
@@ -118,8 +123,7 @@ def pe_ttm_with(_date, _stock, _price):
             return _price / (_cur_item['np'] / _cur_item['tcs'])
 
         _current_eps = (_year_report['np'] - _q3_report['np'] + _cur_item['np']) / _cur_item['tcs']
-
-        return _price / _current_eps
+        return 0.0 if _current_eps == 0 else _price / _current_eps
 
     if _report_quarter == 1:
         # 当前是当前年中报, 还需要 上一年年报 - 上一年年中报 + 当前年中报
@@ -130,8 +134,7 @@ def pe_ttm_with(_date, _stock, _price):
             return _price / (_cur_item['np'] / _cur_item['tcs'])
 
         _current_eps = (_year_report['np'] - _q2_report['np'] + _cur_item['np']) / _cur_item['tcs']
-
-        return _price / _current_eps
+        return 0.0 if _current_eps == 0 else _price / _current_eps
 
     if _report_quarter == 0:
         # 当前是一季报, 还需要 上一年年报 - 上一年一季报 + 当前的一季报
@@ -142,16 +145,12 @@ def pe_ttm_with(_date, _stock, _price):
             return _price / (_cur_item['np'] / _cur_item['tcs'])
 
         _current_eps = (_year_report['np'] - _q1_report['np'] + _cur_item['np']) / _cur_item['tcs']
-
-        return _price / _current_eps
+        return 0.0 if _current_eps == 0 else _price / _current_eps
 
     return 0.0
 
 
-
 if __name__ == "__main__":
-    item = pe_ttm_with(20110225, "000651", 18.13)
+    item = pe_ttm_with(20181114, "300104", 3.61)
     # item = pb_with(20181109, "601318", 64.62)
     print(item)
-
-

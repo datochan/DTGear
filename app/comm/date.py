@@ -6,7 +6,7 @@
 
     :copyright: (c) 16/11/3 by datochan.
 """
-import datetime
+from datetime import datetime, timedelta
 import pandas as pd
 
 from configure import *
@@ -14,6 +14,18 @@ from configure import *
 
 CALENDAR_BUFFER = pd.DataFrame()  # 股市交易日历的全局缓存
 
+
+def years_ago(years, from_date=None):
+    """获取几年前的日期"""
+    if from_date is None:
+        from_date = datetime.now()
+    try:
+        return from_date.replace(year=from_date.year - years)
+    except ValueError:
+        # Must be 2/29!
+        assert from_date.month == 2 and from_date.day == 29 # can be removed
+        return from_date.replace(month=2, day=28,
+                                 year=from_date.year-years)
 
 def next_day(date):
     """
@@ -124,7 +136,7 @@ def datetime_to_str(date):
 
 
 def today():
-    return datetime_to_str(datetime.datetime.now())
+    return datetime_to_str(datetime.now())
 
 
 def add_days(start="19901219", delta=1):
@@ -165,7 +177,7 @@ def add_days_except_weekend(start, days):
 
     while idx < days*2:
         idx += 1
-        dt_current = dt_start + datetime.timedelta(days=idx)
+        dt_current = dt_start + timedelta(days=idx)
         if dt_current.weekday() != 5 and dt_current.weekday() != 6:
             # 不是周末就 增加一天
             dt_idx += 1
@@ -221,11 +233,14 @@ def report_date_with(_date:int):
     return int("%d%s" % (_year, quarter_date[_quarter]))
 
 
-def report_date_list_with(_date):
+def report_date_list_with(_date=None):
     """获取指定日期所有的财报"""
     date_list = ["19980630", "19981231", "19990630", "19991231", "20000630", "20001231",
                  "20010630", "20010930", "20011231"]
-    _today = str_to_datetime(_date)
+
+    _today = datetime.today()
+    if _date is not None:
+        _today = str_to_datetime(_date)
 
     idx = 2002
     while idx < _today.year:

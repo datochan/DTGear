@@ -89,7 +89,7 @@ def report_time(time_url, format_str, rt_file_path, date_str=None):
             print("指定的年报披露日期有误,不能超过当前日期!")
             return
     else:
-        date_list = date.report_data()
+        date_list = date.report_date_list_with()
 
     for item in date_list:
         _rt_file_path = rt_file_path % (PROJECT_ROOT, item)

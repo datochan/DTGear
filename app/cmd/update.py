@@ -1,6 +1,6 @@
 import asyncore
 import time
-import datetime
+from datetime import timedelta, datetime
 
 import click
 
@@ -109,7 +109,7 @@ def report():
 
 
 @update.command(help="更新股票财报信息")
-@click.option('--date', default=None, help='description')
+@click.option('--all', default=None, help='description')
 def rt(date):
     """
     todo: 需要更新一下，是更新增量还是更新全量
@@ -138,16 +138,15 @@ def bond():
     bond_df = pd.read_csv(config.get("files").get("bond"), header=0, encoding="utf8")
     if len(bond_df) > 0:
         item_last = bond_df.loc[bond_df.index[-1]]
-
-    last_day = datetime.datetime.strptime(str(int(item_last["date"])), "%Y%m%d")
-    delta = datetime.timedelta(days=1)
+    last_day = datetime.strptime(str(int(item_last["date"])), "%Y%m%d")
+    delta = timedelta(days=1)
     last_day = last_day + delta
 
     start = str(last_day)[0:10]
     click.echo("\t开始更新 %s ~ %s 的债券收益信息..." % (start, today))
 
-    url = config.get('urls').get('china_bond_list') % (start, today)
-    doc = pq(url, headers={'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; rv:24.0) Gecko/20140129 Firefox/24.0'})
+    html_cnt = netbase.HttpClient(config.get('urls').get('china_bond_list') % (start, today))
+    doc = pq(html_cnt.value().decode("utf-8"))
 
     is_header = True
     bond_list = []
@@ -197,8 +196,9 @@ def bond_all():
     for idx in range(0, len(start)):
         click.echo("\t开始更新 %s ~ %s 的债券收益信息..." % (start[idx], end[idx]))
 
-        url = config.get('urls').get('china_bond_list') % (start[idx], end[idx])
-        doc = pq(url, headers={'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; rv:24.0) Gecko/20140129 Firefox/24.0'})
+        html_cnt = netbase.HttpClient(config.get('urls').get('china_bond_list') % (start[idx], end[idx]))
+        doc = pq(html_cnt.value().decode("utf-8"))
+
 
         is_header = True
         bond_list = []
