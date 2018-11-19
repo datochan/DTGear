@@ -130,7 +130,7 @@ def fixed():
                     prev_fixed_close = item["close"]
 
                 prev_close = item["close"]
-                db_client.upsert_one(_market=row["market"], _code=row["code"], _date=item["date"],
+                db_client.upsert_one(_filter={"code": str(row["code"]), "market": row["market"], "date": str(item["date"])},
                                      _value={"fixed": prev_fixed_close})
 
         except FileNotFoundError as ex:
@@ -181,7 +181,7 @@ def pe_pb_roe():
                 roe_value = 0.0
                 if pe_value != 0.0:
                     roe_value = pb_value / pe_value
-                db_client.upsert_one(_market=row["market"], _code=row["code"], _date=item["date"],
+                db_client.upsert_one(_filter={"code": str(row["code"]), "market": row["market"], "date": str(item["date"])},
                                      _value={"lyr": lyr_value, "pe_ttm": pe_value, "pb": pb_value,
                                              "roe": roe_value})
 
@@ -208,6 +208,9 @@ def mv():
         try:
             print("计算 %d-%s 的股本、市值、股息率" % (row["market"], row["code"]))
 
+            ccs = 0  # 流通股
+            tcs = 0  # 总股本
+
             stock_day_list = db_client.find_stock_list(_filter={"code": row['code'], "market": row["market"]},
                                                        _sort=[("date", pymongo.ASCENDING)],
                                                        _fields={"date":1, "close":1})
@@ -227,6 +230,9 @@ def mv():
                     last_day_df = stock_day_df[stock_day_df["date"] == item_last['date']]
                     stock_day_df = stock_day_df[stock_day_df.index > last_day_df.index.values[0]]
 
+                    ccs = item_last["cmv"] // item_last["close"]  # 流通股
+                    tcs = item_last["tmv"] // item_last["close"]  # 总股本
+
             except FileNotFoundError as ex:
                 # 如果从来没计算过后复权价则不管
                 pass
@@ -238,10 +244,7 @@ def mv():
             filter_report_df = report_df[report_df["code"] == row["code"]]
             filter_report_df = filter_report_df.sort_values(['date'], ascending=True)
 
-            ccs = 0  # 流通股
-            tcs = 0  # 总股本
             for idx, item in stock_day_df.iterrows():
-
                 item_df = filter_bonus_df[filter_bonus_df["date"] == int(item["date"])]
                 if len(item_df) > 0:
                     # 高送转中记录的数据单位都到万
@@ -258,7 +261,7 @@ def mv():
                 # 3年的股息率
                 dr = bonus.dividend_rate_with(int(item["date"]), row["code"], item["close"])
 
-                db_client.upsert_one(_market=row["market"], _code=row["code"], _date=item["date"],
+                db_client.upsert_one(_filter={"code": str(row["code"]), "market": row["market"], "date": str(item["date"])},
                                      _value={"cmv": ccs_mv, "tmv": tcs_mv, "dr": dr})
 
         except FileNotFoundError as ex:

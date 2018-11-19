@@ -61,9 +61,9 @@ def index_val(_date:int, _idx_code:str, _mongo_client=None):
 
     mid_value_pe = number.get_median(pe_list)
     mid_value_pb = number.get_median(pb_list)
-    mid_value_roe = number.get_median(roe_list)
-    mid_value_dr = number.get_median(dr_list)
+    avg_value_roe = number.get_average(roe_list)
+    avg_value_dr = number.get_average(dr_list)
 
     # 日期、指数代码、pe-ttm中位数、pb中位数、roe中位数、股息率中位数
     # todo 1周涨幅、一月涨幅、一季涨幅、今年至今、一年涨幅、两年涨幅、三年涨幅、五年涨幅
-    return [mid_value_pe, mid_value_pb, mid_value_roe, mid_value_dr]
+    return [mid_value_pe, mid_value_pb, avg_value_roe, avg_value_dr]

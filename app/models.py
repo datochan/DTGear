@@ -42,20 +42,16 @@ class MongoDBClient:
             return
         self.__stock.insert_many(json.loads(_dataframe.to_json(orient='records')))
 
-    def upsert_one(self, _market, _code:str, _date:str, _value, _upsert=True):
+    def upsert_one(self, _value, _filter=None, _upsert=True):
         """
         有则更新，无则插入
-        :param _market:
-        :param _code:
-        :param _date:
+        :param _filter:
         :param _value:
         :param _upsert: 如果要更新的数据不存在是否插入
         :return:
         """
         try:
-            self.__stock.update_one({"code": "%s" % _code, "market": _market, "date": "%s"%_date}, {
-                '$set': _value
-            }, upsert=_upsert)
+            self.__stock.update_one(_filter, {'$set': _value}, upsert=_upsert)
         except Exception as ex:
             print(str(ex))
 

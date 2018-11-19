@@ -40,7 +40,7 @@ def a():
 
     for _, row in calendar_df.iterrows():
         cal_date = int(row["calendarDate"])
-        if row['isOpen'] == 0 or 20020328 > cal_date or cal_date >= today:
+        if row['isOpen'] == 0 or 20020328 > cal_date or cal_date > today:
             continue
 
         stock_day_list = db_client.find_stock_list(_filter={"date": str(cal_date), "fixed": {"$exists": True}},
@@ -63,12 +63,12 @@ def a():
 
         mid_value_pe = number.get_median(pe_list)
         mid_value_pb = number.get_median(pb_list)
-        mid_value_roe = number.get_median(roe_list)
-        mid_value_dr = number.get_median(dr_list)
+        avg_value_roe = number.get_average(roe_list)
+        avg_value_dr = number.get_average(dr_list)
         click.echo("计算 %s 日的数据中值, pe=%f, pb=%f, roe=%f, dr=%f ... " %
-                   (cal_date, mid_value_pe, mid_value_pb, mid_value_roe, mid_value_dr))
+                   (cal_date, mid_value_pe, mid_value_pb, avg_value_roe, avg_value_dr))
 
-        result_list.append([cal_date, mid_value_pe, mid_value_pb, mid_value_roe, mid_value_dr])
+        result_list.append([cal_date, mid_value_pe, mid_value_pb, avg_value_roe, avg_value_dr])
 
         if len(result_list) % 50 == 0:
             if first:
@@ -113,14 +113,13 @@ def hs300():
 
     for _, row in calendar_df.iterrows():
         cal_date = int(row["calendarDate"])
-        if row['isOpen'] == 0 or cal_date < start_date  or cal_date >= today:
-            # 该指数是2005年4月8日成立的
+        if row['isOpen'] == 0 or cal_date < start_date  or cal_date > today:
             continue
 
         click.echo("\t计算%d-%s - %d ..." % (idx_market, idx_code, cal_date))
         _result = index.index_val(cal_date, idx_code, db_client)
         if _result is not None:
-            db_client.upsert_one(_market=idx_market, _code=idx_code, _date=str(cal_date),
+            db_client.upsert_one(_filter={"code": str(idx_code), "market": idx_market, "date": str(cal_date)},
                                  _value={"pe_ttm": _result[0], "pb": _result[1], "roe": _result[2], "dr": _result[3]})
 
     click.echo("沪深300的估值信息计算结束...")
@@ -149,13 +148,13 @@ def szhl():
 
     for _, row in calendar_df.iterrows():
         cal_date = int(row["calendarDate"])
-        if row['isOpen'] == 0 or cal_date < start_date  or cal_date >= today:
+        if row['isOpen'] == 0 or cal_date < start_date  or cal_date > today:
             continue
 
         click.echo("\t计算%d-%s - %d ..." % (idx_market, idx_code, cal_date))
         _result = index.index_val(cal_date, idx_code, db_client)
         if _result is not None:
-            db_client.upsert_one(_market=idx_market, _code=idx_code, _date=str(cal_date),
+            db_client.upsert_one(_filter={"code": str(idx_code), "market": idx_market, "date": str(cal_date)},
                                  _value={"pe_ttm": _result[0], "pb": _result[1], "roe": _result[2], "dr": _result[3]})
 
     click.echo("上证红利的估值信息计算结束...")
@@ -184,14 +183,13 @@ def zzhl():
 
     for _, row in calendar_df.iterrows():
         cal_date = int(row["calendarDate"])
-        if row['isOpen'] == 0 or cal_date < start_date  or cal_date >= today:
-            # 该指数是2005年4月8日成立的
+        if row['isOpen'] == 0 or cal_date < start_date  or cal_date > today:
             continue
 
         click.echo("\t计算%d-%s - %d ..." % (idx_market, idx_code, cal_date))
         _result = index.index_val(cal_date, idx_code, db_client)
         if _result is not None:
-            db_client.upsert_one(_market=idx_market, _code=idx_code, _date=str(cal_date),
+            db_client.upsert_one(_filter={"code": str(idx_code), "market": idx_market, "date": str(cal_date)},
                                  _value={"pe_ttm": _result[0], "pb": _result[1], "roe": _result[2], "dr": _result[3]})
 
     click.echo("中证红利的估值信息计算结束...")
@@ -220,14 +218,13 @@ def sz50():
 
     for _, row in calendar_df.iterrows():
         cal_date = int(row["calendarDate"])
-        if row['isOpen'] == 0 or cal_date < start_date  or cal_date >= today:
-            # 该指数是2005年4月8日成立的
+        if row['isOpen'] == 0 or cal_date < start_date  or cal_date > today:
             continue
 
         click.echo("\t计算%d-%s - %d ..." % (idx_market, idx_code, cal_date))
         _result = index.index_val(cal_date, idx_code, db_client)
         if _result is not None:
-            db_client.upsert_one(_market=idx_market, _code=idx_code, _date=str(cal_date),
+            db_client.upsert_one(_filter={"code": str(idx_code), "market": idx_market, "date": str(cal_date)},
                                  _value={"pe_ttm": _result[0], "pb": _result[1], "roe": _result[2], "dr": _result[3]})
 
     click.echo("上证50的估值信息计算结束...")
@@ -256,14 +253,13 @@ def zz500():
 
     for _, row in calendar_df.iterrows():
         cal_date = int(row["calendarDate"])
-        if row['isOpen'] == 0 or cal_date < start_date  or cal_date >= today:
-            # 该指数是2005年4月8日成立的
+        if row['isOpen'] == 0 or cal_date < start_date  or cal_date > today:
             continue
 
         click.echo("\t计算%d-%s - %d ..." % (idx_market, idx_code, cal_date))
         _result = index.index_val(cal_date, idx_code, db_client)
         if _result is not None:
-            db_client.upsert_one(_market=idx_market, _code=idx_code, _date=str(cal_date),
+            db_client.upsert_one(_filter={"code": str(idx_code), "market": idx_market, "date": str(cal_date)},
                                  _value={"pe_ttm": _result[0], "pb": _result[1], "roe": _result[2], "dr": _result[3]})
 
     click.echo("中证500的估值信息计算结束...")
@@ -292,13 +288,13 @@ def zxbz():
 
     for _, row in calendar_df.iterrows():
         cal_date = int(row["calendarDate"])
-        if row['isOpen'] == 0 or cal_date < start_date  or cal_date >= today:
+        if row['isOpen'] == 0 or cal_date < start_date  or cal_date > today:
             continue
 
         click.echo("\t计算%d-%s - %d ..." % (idx_market, idx_code, cal_date))
         _result = index.index_val(cal_date, idx_code, db_client)
         if _result is not None:
-            db_client.upsert_one(_market=idx_market, _code=idx_code, _date=str(cal_date),
+            db_client.upsert_one(_filter={"code": str(idx_code), "market": idx_market, "date": str(cal_date)},
                                  _value={"pe_ttm": _result[0], "pb": _result[1], "roe": _result[2], "dr": _result[3]})
 
     click.echo("中小扳指的估值信息计算结束...")
@@ -327,13 +323,13 @@ def cybz():
 
     for _, row in calendar_df.iterrows():
         cal_date = int(row["calendarDate"])
-        if row['isOpen'] == 0 or cal_date < start_date  or cal_date >= today:
+        if row['isOpen'] == 0 or cal_date < start_date  or cal_date > today:
             continue
 
         click.echo("\t计算%d-%s - %d ..." % (idx_market, idx_code, cal_date))
         _result = index.index_val(cal_date, idx_code, db_client)
         if _result is not None:
-            db_client.upsert_one(_market=idx_market, _code=idx_code, _date=str(cal_date),
+            db_client.upsert_one(_filter={"code": str(idx_code), "market": idx_market, "date": str(cal_date)},
                                  _value={"pe_ttm": _result[0], "pb": _result[1], "roe": _result[2], "dr": _result[3]})
 
     click.echo("中小扳指的估值信息计算结束...")

@@ -27,6 +27,29 @@ def years_ago(years, from_date=None):
         return from_date.replace(month=2, day=28,
                                  year=from_date.year-years)
 
+
+def is_work_day(date:int):
+    """
+    当前指定日期是否是交易日
+    :param date: str xxxxxxxx 格式
+    :return:
+    """
+    try:
+        global CALENDAR_BUFFER
+        if len(CALENDAR_BUFFER) <= 0:
+            CALENDAR_BUFFER = pd.read_csv(config.get("files").get("calendar"), header=0)
+
+        filter_df = CALENDAR_BUFFER[CALENDAR_BUFFER['calendarDate'] == date]
+
+        for index, row in filter_df.iterrows():
+            if row['isOpen'] == 1:
+                return True
+        return False
+    except Exception as ex:
+        print(str(ex))
+        return None
+
+
 def next_day(date):
     """
     获取某个日期的下一个交易日
@@ -49,22 +72,26 @@ def next_day(date):
         return None
 
 
-def prev_day(date):
+def prev_day(_date):
     """
     获取某个日期的上一个交易日
-    :param date: str xxxxxxxx 格式
+    :param int _date: xxxxxxxx 格式
     :return:
     """
     try:
         global CALENDAR_BUFFER
         if len(CALENDAR_BUFFER) <= 0:
             CALENDAR_BUFFER = pd.read_csv(config.get("files").get("calendar"), header=0)
-        str_prev_day = CALENDAR_BUFFER.ix[str(date)]["prevTradeDate"]
-        return None if type(str_prev_day) != str else str_prev_day
+
+        filter_df = CALENDAR_BUFFER[CALENDAR_BUFFER['calendarDate'] == _date]
+        for index, row in filter_df.iterrows():
+            return int(row[["prevTradeDate"]])
+        return None
 
     except FileNotFoundError as ex:
         print(str(ex))
     except Exception as ex:
+        print(str(ex))
         pass
 
     return None

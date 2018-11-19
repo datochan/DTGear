@@ -6,6 +6,7 @@
     :copyright: (c) 16/11/26 by datochan.
 """
 import asyncore
+from datetime import datetime
 import struct
 import time
 
@@ -142,6 +143,19 @@ class TdxClient:
             self.data_stocks = df.sort_index(ascending=1)
             end = int("".join(time.strftime('%Y%m%d', time.localtime(time.time()))))
 
+            _is_work_day = date.is_work_day(end)
+            if _is_work_day is None:
+                print("股市交易日历发生错误，请更新股市交易日历后再重试!")
+                return
+
+            if _is_work_day is True:
+                # 是交易日, 需要在当日3点半之后再执行
+                _cur_time = int(time.time())
+                _target_time = int(time.mktime(time.strptime('%s 15:00:00' % str(datetime.now())[0:10], '%Y-%m-%d %H:%M:%S')))
+                if _cur_time < _target_time:
+                    # 如果当前交易还未结束则更新到上一个交易日
+                    end = date.prev_day(end)
+
             for index, row in self.data_stocks.iterrows():
                 stock_code = str(row["code"]).zfill(6)
 
@@ -178,6 +192,7 @@ class TdxClient:
     def on_history(self, header:ResponseHeader, body:Buffer):
         """处理日线封包"""
         current_df_list = []
+        is_st = 0
         stock_code = self.data_stocks.ix[header.idx]['code']
         stock_name = self.data_stocks.ix[header.idx]['name']
         market = int(self.data_stocks.ix[header.idx]['market'])
@@ -186,6 +201,10 @@ class TdxClient:
             # 只处理日线数据
             return
 
+        if stock_name.startswith("ST") or stock_name.startswith("SST") or \
+                stock_name.startswith("*ST") or stock_name.startswith("S*ST"):
+            is_st = 1
+
         # 日线数据
         item_count =  body.read_format("<HL")[1] / ResponseStockDays.length()
 
@@ -193,14 +212,14 @@ class TdxClient:
         while idx < item_count:
             item = ResponseStockDays.parse(body)
             current_df_list.append([item.date, int(market), stock_code, stock_name,
-                                    item.open, item.low, item.high, item.close, item.volume, item.amount])
+                                    item.open, item.low, item.high, item.close, item.volume, item.amount, is_st])
             idx += 1
 
         print("获取 %s 的日线数据" % stock_code)
 
 
         hs_df = pd.DataFrame(current_df_list, columns=['date', 'market', 'code', 'name', 'open', 'low', 'high', 'close',
-                                                       'volume', 'amount'])
+                                                       'volume', 'amount', 'st'])
 
         self.__db_client.insert_json(hs_df)
 

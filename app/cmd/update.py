@@ -1,6 +1,6 @@
 import asyncore
 import time
-from datetime import timedelta, datetime
+from datetime import timedelta
 
 import click
 
@@ -41,10 +41,9 @@ def basics():
 def days():
     click.echo("开始更新股票日线数据...")
     def __update():
+        # 当前交易日时，交易未结束则更新到昨天，交易结束则更新到今天。
         c1.data_gen = c1.update_history()
         c1.proxy.send(next(c1.data_gen))
-
-    # todo 需要判断一下当前的时间, 如果是交易日，则必须在当天的下午3点半之后才允许更新
 
     db_client = models.MongoDBClient(config.get("db").get("mongodb"), config.get("db").get("database"))
 
@@ -62,7 +61,7 @@ def st():
     st_df['code'] = st_df['code'].map(lambda x: str(x).zfill(6))
 
     for index, row in st_df.iterrows():
-        db_client.upsert_one(_market=row['market'], _code=row['code'], _date=row['date'],
+        db_client.upsert_one(_filter={"code": str(row["code"]), "market": row["market"], "date": str(row["date"])},
                              _value={"st": 1, "name": "%s"%row['name']}, _upsert=False)
         print("更新记录: %d" % index)
 
@@ -109,18 +108,22 @@ def report():
 
 
 @update.command(help="更新股票财报信息")
-@click.option('--all', default=None, help='description')
-def rt(date):
+@click.option('--all', type=click.BOOL, default=False, help='是否更新全量数据, 默认只更新当前季度')
+def rt(all):
     """
-    todo: 需要更新一下，是更新增量还是更新全量
     年报: xxxx-12-31 至 xxxx-04-30
     一季: xxxx-03-31 至 xxxx-04-30
     年中: xxxx-06-30 至 xxxx-08-31
     三季: xxxx-09-30 至 xxxx-10-31
-    :param date:
+    :param all:
     :return:
     """
     print("准备更新财报披露时间数据...")
+    date = None
+    if all is False:
+        # 如果不更新全量数据则只更新今天所属季度的部分数据
+        date = "".join(time.strftime('%Y%m%d', time.localtime(time.time())))
+
     thsi.report_time(config.get("urls").get("server_time"), config.get("urls").get("report_time"),
                      config.get("files").get("rt_item"), date)
 
