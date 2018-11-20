@@ -89,7 +89,6 @@ def a():
                      mode="a+", header=False, encoding='utf8', float_format="%.6f")
 
 
-
 @calc.command(help="计算HS300的PE/PB中值")
 def hs300():
     click.echo("开始计算沪深300的估值信息...")

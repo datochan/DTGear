@@ -79,7 +79,7 @@ def fixed():
         try:
             prev_close = 0
             prev_fixed_close = 0
-
+            
             print("计算 %d-%s 的后复权数据" % (row["market"], row["code"]))
 
             stock_day_list = db_client.find_stock_list(_filter={"code": row['code'], "market": row["market"]},
@@ -101,7 +101,7 @@ def fixed():
                     last_day_df = stock_day_df[stock_day_df["date"] == item_last['date']]
 
                     prev_close = last_day_df.ix[last_day_df.index.values[0]]["close"]
-                    prev_fixed_close = item_last["close"]
+                    prev_fixed_close = item_last["fixed"]
 
                     stock_day_df = stock_day_df[stock_day_df.index > last_day_df.index.values[0]]
 
