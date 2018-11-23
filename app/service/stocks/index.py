@@ -32,7 +32,7 @@ def index_val(_date:int, _idx_code:str, _mongo_client=None):
         INDEX_MEMBER_DF['outDate'] = INDEX_MEMBER_DF['outDate'].astype('int')
         INDEX_MEMBER_DF['consTickerSymbol'] = INDEX_MEMBER_DF['consTickerSymbol'].map(lambda x: str(x).zfill(6))
 
-    filter_member_df = INDEX_MEMBER_DF[(INDEX_MEMBER_DF['intoDate'] <= _date) & (INDEX_MEMBER_DF['outDate'] > _date)]
+    filter_member_df = INDEX_MEMBER_DF[(INDEX_MEMBER_DF['intoDate'] <= _date) & (INDEX_MEMBER_DF['outDate'] >= _date)]
 
     if len(stock_day_list) <= 0:
         # 这一天没有股票交易

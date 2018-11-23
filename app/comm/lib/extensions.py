@@ -9,6 +9,6 @@
 from flask_pymongo import PyMongo
 from flask_mako import MakoTemplates
 
-__all__ = ['db', 'mako']
-db = PyMongo()
+__all__ = ['mongo', 'mako']
+mongo = PyMongo()
 mako = MakoTemplates()

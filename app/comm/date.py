@@ -27,11 +27,10 @@ def years_ago(years, from_date=None):
         return from_date.replace(month=2, day=28,
                                  year=from_date.year-years)
 
-
 def is_work_day(date:int):
     """
     当前指定日期是否是交易日
-    :param date: str xxxxxxxx 格式
+    :param int date: xxxxxxxx 格式
     :return:
     """
     try:
@@ -97,14 +96,14 @@ def prev_day(_date):
     return None
 
 
-def last_days(start="19901219", type=1, all=False):
+def last_days(_start=19901219, _type=1, _all=False):
     """
     获取指定某周，某月，某季度的某年的最后一个交易日的列表
     :notice: 如果要获取第一个交易日就获取上一个最后交易日然后通过next_day获取
-    :param start: 开始日期，如果不指定则获取从沪市成立以来的所有
-    :param type: 指定类别: 0 表示自start以来第一周的交易日, 1表示自start以来月份的第一个交易日,
-                          2 表示自start以来记录度的第一个交易日, 3表示自start以来每年度的第一个交易日
-    :param all: True表示一直到今天为止符合条件的日期列表, False表示只获取下一个满足条件的日期
+    :param _start: 开始日期，如果不指定则获取从沪市成立以来的所有
+    :param _type: 指定类别: 0 表示自start以来第一周的交易日, 1表示自start以来月份的第一个交易日,
+                          2 表示自start以来季度的第一个交易日, 3表示自start以来每年度的第一个交易日
+    :param _all: True表示一直到今天为止符合条件的日期列表, False表示只获取下一个满足条件的日期
     :return:
     """
     last_day_list = []
@@ -112,32 +111,32 @@ def last_days(start="19901219", type=1, all=False):
         global CALENDAR_BUFFER
         if len(CALENDAR_BUFFER) <= 0:
             CALENDAR_BUFFER = pd.read_csv(config.get("files").get("calendar"), header=0)
-        filter_df = CALENDAR_BUFFER[CALENDAR_BUFFER['calendarDate'] >= start]
+        filter_df = CALENDAR_BUFFER[CALENDAR_BUFFER['calendarDate'] >= _start]
 
         for index, row in filter_df.iterrows():
             if row['isOpen'] != 1:
                 continue
 
-            if type == 0 and row["isWeekEnd"] == 1:
-                if all is False:
+            if _type == 0 and row["isWeekEnd"] == 1:
+                if _all is False:
                     return row['calendarDate']
                 else:
                     last_day_list.append(row['calendarDate'])
 
-            elif type == 1 and row["isMonthEnd"] == 1:
-                if all is False:
+            elif _type == 1 and row["isMonthEnd"] == 1:
+                if _all is False:
                     return row['calendarDate']
                 else:
                     last_day_list.append(row['calendarDate'])
 
-            elif type == 2 and row["isQuarterEnd"] == 1:
-                if all is False:
+            elif _type == 2 and row["isQuarterEnd"] == 1:
+                if _all is False:
                     return row['calendarDate']
                 else:
                     last_day_list.append(row['calendarDate'])
 
-            elif type == 3 and row["isYearEnd"] == 1:
-                if all is False:
+            elif _type == 3 and row["isYearEnd"] == 1:
+                if _all is False:
                     return row['calendarDate']
                 else:
                     last_day_list.append(row['calendarDate'])

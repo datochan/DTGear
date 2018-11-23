@@ -24,7 +24,6 @@ class MongoDBClient:
 
     def find_stock_item(self, _filter=None, _sort=None, _fields=None):
         """
-        获取某只股票后复权数据最后更新时间
         :param _filter: 查询条件 如: {"code": _code, "market": _market, "fixed": {"$exists": True}}
         :param _sort: 排序条件 如: [("date", pymongo.DESCENDING)]
         :param _fields: 查询返回的字段 如: {"code": 1, "market":1}

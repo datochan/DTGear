@@ -70,9 +70,10 @@ class Config:
     LOGGER_LEVEL = logging.DEBUG
     LOGGER_FORMAT = '%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s %(message)s'
     LOGGER_DATE_FORMAT = '%a, %d %b %Y %H:%M:%S'
-    LOGGER_FILENAME = 'webserver.log'
+    LOGGER_FILENAME = 'dtgear.log'
     LOGGER_FILEMODE = 'w'
 
+    MONGO_URI = "%s%s"% (config.get("db").get("mongodb"), config.get("db").get("database"))
     MAKO_TRANSLATE_EXCEPTIONS = False
 
     @staticmethod

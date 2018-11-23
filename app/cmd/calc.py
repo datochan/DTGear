@@ -101,7 +101,7 @@ def hs300():
     calendar_df = pd.read_csv(config.get("files").get("calendar"), header=0)
 
     try:
-        item_last = db_client.find_stock_item(_filter={"code": idx_code, "market": 1, "dr": {"$exists": True}},
+        item_last = db_client.find_stock_item(_filter={"code": idx_code, "market": idx_market, "dr": {"$exists": True}},
                                               _sort=[("date", pymongo.DESCENDING)])
 
         if item_last is not None and len(item_last) > 0:
@@ -136,7 +136,7 @@ def szhl():
     calendar_df = pd.read_csv(config.get("files").get("calendar"), header=0)
 
     try:
-        item_last = db_client.find_stock_item(_filter={"code": idx_code, "market": 1, "dr": {"$exists": True}},
+        item_last = db_client.find_stock_item(_filter={"code": idx_code, "market": idx_market, "dr": {"$exists": True}},
                                               _sort=[("date", pymongo.DESCENDING)])
 
         if item_last is not None and len(item_last) > 0:
@@ -171,7 +171,7 @@ def zzhl():
     calendar_df = pd.read_csv(config.get("files").get("calendar"), header=0)
 
     try:
-        item_last = db_client.find_stock_item(_filter={"code": idx_code, "market": 1, "dr": {"$exists": True}},
+        item_last = db_client.find_stock_item(_filter={"code": idx_code, "market": idx_market, "dr": {"$exists": True}},
                                               _sort=[("date", pymongo.DESCENDING)])
 
         if item_last is not None and len(item_last) > 0:
@@ -206,7 +206,7 @@ def sz50():
     calendar_df = pd.read_csv(config.get("files").get("calendar"), header=0)
 
     try:
-        item_last = db_client.find_stock_item(_filter={"code": idx_code, "market": 1, "dr": {"$exists": True}},
+        item_last = db_client.find_stock_item(_filter={"code": idx_code, "market": idx_market, "dr": {"$exists": True}},
                                               _sort=[("date", pymongo.DESCENDING)])
 
         if item_last is not None and len(item_last) > 0:
@@ -241,7 +241,7 @@ def zz500():
     calendar_df = pd.read_csv(config.get("files").get("calendar"), header=0)
 
     try:
-        item_last = db_client.find_stock_item(_filter={"code": idx_code, "market": 1, "dr": {"$exists": True}},
+        item_last = db_client.find_stock_item(_filter={"code": idx_code, "market": idx_market, "dr": {"$exists": True}},
                                               _sort=[("date", pymongo.DESCENDING)])
 
         if item_last is not None and len(item_last) > 0:
@@ -276,7 +276,7 @@ def zxbz():
     calendar_df = pd.read_csv(config.get("files").get("calendar"), header=0)
 
     try:
-        item_last = db_client.find_stock_item(_filter={"code": idx_code, "market": 1, "dr": {"$exists": True}},
+        item_last = db_client.find_stock_item(_filter={"code": idx_code, "market": idx_market, "dr": {"$exists": True}},
                                               _sort=[("date", pymongo.DESCENDING)])
 
         if item_last is not None and len(item_last) > 0:
@@ -311,7 +311,7 @@ def cybz():
     calendar_df = pd.read_csv(config.get("files").get("calendar"), header=0)
 
     try:
-        item_last = db_client.find_stock_item(_filter={"code": idx_code, "market": 1, "dr": {"$exists": True}},
+        item_last = db_client.find_stock_item(_filter={"code": idx_code, "market": idx_market, "dr": {"$exists": True}},
                                               _sort=[("date", pymongo.DESCENDING)])
 
         if item_last is not None and len(item_last) > 0:
@@ -332,4 +332,3 @@ def cybz():
                                  _value={"pe_ttm": _result[0], "pb": _result[1], "roe": _result[2], "dr": _result[3]})
 
     click.echo("中小扳指的估值信息计算结束...")
-

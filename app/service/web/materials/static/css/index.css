@@ -1,0 +1,417 @@
+body {
+	margin: 0;
+	padding: 0;
+    font-family: 'Open Sans', sans-serif;
+	overflow-x: hidden;
+    background-size: auto;
+    background: #161E2C url(../images/bg.jpg) no-repeat fixed bottom center;
+}
+.margin-b-30 { margin-bottom: 30px; }
+
+.main-page {
+	position: relative;
+	margin-top: 80px;
+}
+
+/*http://stackoverflow.com/questions/16034397/css-calc-alternative*/
+.content-main {
+	padding-left: 840px;
+	width: 100%;
+	box-sizing: border-box;
+	float: none;
+}
+
+.main-navigation {
+	padding: 0px 0px;
+	width: 810px;
+	position: absolute;
+	top: 0;
+	left: 0;
+}
+
+.main-menu {
+	float: left;
+	width: 100%;
+}
+
+.main-menu-link {
+	color: #fff;
+	display: block;
+	font-weight: 300;
+	font-size: 15px;
+}
+
+.main-menu-link:hover {	color: #66FFFF; }
+.main-menu-link:focus {	color: #fff; }
+
+.main-menu-link-text {
+	margin-bottom: 0;
+	position: absolute;
+	left: 20px;
+	bottom: 15px;
+}
+
+.menu-container {
+	padding-left: 0;
+	overflow: auto;
+	margin-bottom: 10px;
+}
+.menu-container:last-child { margin-bottom: 0; }
+.banner-main-home-text,
+.banner-main-about-text {
+	position: relative;
+	float: left;
+	width: 95%;
+	color: #000;
+	text-align: left;
+	right: 0;
+	top: 0px;
+	left: 0;
+	text-shadow: none;
+}
+
+.list-group {
+    padding-left: 0;
+    margin-bottom: 40px;
+}
+
+.list-group .list-group-item.active{
+	z-index: 2;
+    color: #fff;
+    background-color: rgba(34,174,181,0.8);
+    border-color: rgba(34,174,181,0.8);
+}
+
+.list-group .list-group-item:hover{
+	color: #000;
+    text-decoration: none;
+    background-color: rgb(48, 248, 255);
+}
+
+.list-group .list-group-item-text {
+	line-height: 1.8;
+    margin-top: 5px;
+    margin-bottom: 10px;
+}
+
+.list-group .list-group-item-heading {
+	content: "";
+}
+
+.heading, .heading2 {
+	float: left;
+	width: 100%;
+	margin: 10px 0px;
+}
+.heading { border-left: 4px solid rgba(34,174,181,0.8); padding-left: 10px;}
+.heading h1, .heading2 h1 {
+	margin: 0 10px;
+	font-weight: 600;
+	font-size: 72px;
+}
+.heading p, .heading2 p {
+	margin: 0 10px;
+	font-size: 24px;
+	font-weight: 600;
+}
+.heading p { color: rgba(34,174,181,0.8); }
+.heading2 p { color: #a92446; }
+.desc, .desc2 {
+	float: left;
+	width: 100%;
+	padding-left: 15px;
+}
+.desc p {
+	line-height: 1.8;
+	margin-top: 25px;
+	margin-bottom: 30px;
+}
+
+a.thumbnail.view-more, a.thumbnail.view-more:hover {
+    color: rgba(34,174,181,0.8);
+}
+
+.status-normal { background-color: rgba(107,181,34,0.8); text-align: center; height: 130px;}
+.status-error { background-color: rgba(250,50,50,0.8); text-align: center; height: 130px;}
+.hq-k-line { background-color: rgba(0,0,0,0.5); text-align: center; height: 350px;}
+.zhuangjia { background-color: rgba(151,80,151,0.8); text-align: center; height: 130px;}
+.longhu { background-color: rgba(180,160,35,0.8); text-align: center; height: 130px;}
+.filter { background-color: rgba(80,130,200,0.8); text-align: center; height: 130px;}
+
+.account i, .status-normal i, .status-error i, .data i, .celue i, .configure i, .zhuangjia i, .longhu i, .filter i {
+	float: left;
+	width: 100%;
+	text-align: center;
+	margin: 10px 0;
+}
+
+.box {
+	float: left;
+	box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.16), 0 2px 10px 0 rgba(0, 0, 0, 0.12);
+	display: block;
+	background-color: #fff;
+}
+
+.bottom-main { border-top:7px solid rgba(34,174,181,0.8); }
+.bottom-user {
+	font-size: 16px;
+	color: #ccc;
+	font-weight: bold;
+	margin-top: 10px;
+}
+.bottom-desc {
+	margin-top: 30px;
+	margin-bottom: 35px;
+}
+.bottom-user a {
+	color: #ccc;
+	-webkit-transition: all 0.3s ease;
+	transition: all 0.3s ease;
+}
+.bottom-user a:hover { color:#999; }
+.bottom-user i {
+	font-size: 18px;
+	margin-right: 5px;
+}
+.bottom-img { position: relative; }
+.bottom-img p {
+	width: 100%;
+	color: #fff;
+	position: absolute;
+	bottom: 0px;
+	padding: 18px 10px;
+	margin: 0px 0px;
+	text-transform: uppercase;
+	font-size: 13px;
+	font-weight: 600;
+}
+
+.main-menu table tbody tr:nth-child(odd){
+    background: #ff5e5e24;
+}
+
+.main-menu table tbody tr:nth-child(odd):hover{
+    background: #eee;
+}
+
+.footer {
+	color: white;
+	font-size: 12px;
+	padding-right: 0;
+}
+.copyright {
+	color: #fff;
+	font-size: 11px;
+	margin-bottom: 0;
+	text-align: center;
+	padding: 30px 0;
+}
+
+.copyright a {
+	color: #fff;
+}
+
+.copyright a:hover {
+	color: #FF0;
+}
+
+@media screen and (max-width: 1199px) and (min-width: 992px) {
+
+	.banner-main-home {	padding-bottom: 80px; }
+	.banner-main-home img {	margin-top: 150px; }
+	.banner-main-home-text,
+	.banner-main-about-text {
+		width: 43%;
+	}
+
+	.banner-main-about { padding: 70px 30px 60px 30px; }
+	.banner-main-about img { padding-top: 100px; }
+
+}
+
+@media screen and (max-width: 719px) {
+	#content { float: none; }
+}
+
+@media screen and (min-width: 720px) {
+	#content .box { width: 33%; box-shadow: none;}
+}
+
+@media screen and (min-width: 992px) {
+	#content .box { width: 33%; box-shadow: none;}
+}
+
+@media (min-width: 1230px) {
+	.container { width: 1200px;	}
+}
+
+@media (max-width:991px) {
+
+	.main-body { background-size: auto; }
+
+	.box {	margin-bottom: 30px; }
+
+	.block-keep-ratio-md-2-1:after { padding-top: 50%; }
+
+	.contact-page .main-navigation,
+	.gallery-page .main-navigation,
+	.main-navigation {
+		float: none;
+		position: static;
+		overflow: auto;
+    	margin: 0 auto 80px;
+    	padding-right: 0;
+    	width: 810px;
+    	max-width: 100%;
+	}
+
+	.content-main { padding-left: 0; }
+	.content-main.gallery_main { padding: 30px; }
+
+	.banner-main-home img {
+		display: block;
+		float: none;
+		margin: 50px auto;
+		padding-top: 50px;
+	}
+	.banner-main-home-text { overflow-y: auto; }
+
+	.banner-main-about img {
+		float: none;
+		margin: 0 auto;
+		padding-top: 30px;
+	}
+
+	.bottom-img {
+		width: 100%;
+		margin-bottom: 10px;
+	}
+
+	.bottom-img p {
+		width: 100%;
+		position: relative;
+	}
+
+	.heading h1, .heading2 h1 {	font-size: 40px; }
+	.heading p, .heading2 p { font-size: 14px; }
+
+	.banner-main-home-text,
+	.banner-main-about-text {
+		width: auto;
+	}
+
+	.box.paris { margin-bottom: 0; }
+	.bottom-main { margin-bottom: 0; }
+
+	.aenean { top: 7px;	}
+
+	.about_proin { padding: 0;	}
+	.about-last-container {
+		-webkit-box-orient: vertical;
+		-webkit-box-direction: normal;
+		-webkit-flex-direction: column;
+		    -ms-flex-direction: column;
+		        flex-direction: column;
+	}
+
+	.info-nav-container,
+	.info-description-container {
+		float: none;
+		width: 100%;
+	}
+	.info-nav-container {
+		margin-right: 0;
+		margin-bottom: 30px;
+	}
+}
+
+@media (max-width: 800px) {
+
+	.container {
+		padding-left: 40px;
+		padding-right: 40px;
+	}
+
+}
+
+@media (max-width:767px) {
+
+	.box {	width: 100%; }
+
+	.cards {
+		-webkit-box-pack: center;
+		-webkit-justify-content: center;
+		    -ms-flex-pack: center;
+		        justify-content: center;
+	}
+	.card {	width: 100%; }
+
+	.desc p {
+		font-size:14px;
+		display:block;
+	}
+	.desc2 ul {	display: block;	}
+	.heading, .heading2 { margin: 15px 0px;	}
+	.carousel { min-height: auto; }
+
+	.heading h1, .heading2 h1 {	font-size: 46px; }
+	.heading p, .heading2 p { font-size: 15px; }
+
+	.content-main {
+		padding-left: 0;
+		width: 100%;
+	}
+
+	.gallery_main,
+	.contact-content { padding: 15px; }
+
+	.gallery_title h3 {	font-size: 50px; }
+	.gallery_title h4 {	font-size: 20px; }
+
+	.banner-main-home-text,
+	.banner-main-home img {
+		float: none;
+	}
+
+	.banner-main-about img {
+		float: none;
+		padding-top: 50px;
+	}
+}
+
+@media (max-width: 550px) {
+
+	.banner-main-home, .banner-main-about {	padding: 20px; }
+	.banner-main-home-text {
+		width: 92%;
+		float: left;
+		padding-right: 25px;
+	}
+
+	.aenean { top: 20px; }
+}
+
+@media (max-width: 480px) {
+
+	.col-xxs-12 { width: 100%; }
+
+	.aenean h3 { font-size: 40px; }
+	.aenean h4 { font-size: 22px; }
+
+	.info-description-container { padding: 20px 0; }
+}
+
+@media (max-width:400px) {
+
+	.desc2 { font-size: 12px; }
+
+	.contact-content-upper { padding: 20px;	}
+}
+
+@media (max-width: 370px) {
+
+	.block-width-half {	width: 48%;	}
+	.main-menu-link-icon {	font-size: 3em;	}
+	.gallery_title h3 { font-size: 40px; }
+	.gallery_title h4 { font-size: 18px; }
+}
