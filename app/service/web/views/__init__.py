@@ -13,7 +13,7 @@ def home():
     """首页 """
     return render_template('home.mako', ctx={
         "title": "宽基PB走势图",
-        "start_date": date.datetime_to_str(date.years_ago(years=1))
+        "start_date": date.datetime_to_str(date.years_ago(years=3))
     })
 
 @webapp.route('/pb.json', methods=['GET', 'POST'])

@@ -12,6 +12,7 @@ import pandas as pd
 import pymongo
 from datetime import datetime, timedelta
 from flask_mako import render_template
+from flask import request
 
 from app.comm import date
 from app.service.web import webapp
@@ -33,7 +34,7 @@ def indexes():
 
     return render_template('indexes/list.mako', ctx={
         "last_date": last_date,
-        "start_date": date.datetime_to_str(date.years_ago(years=1))
+        "start_date": date.datetime_to_str(date.years_ago(years=3))
     })
 
 @webapp.route('/indexes.json', methods=['GET', 'POST'])
@@ -128,7 +129,7 @@ def index(_code=None):
     return render_template('indexes/detail.mako', ctx={
         "index_name": item_df["name"].values[0],
         "index_code": _code,
-        "start_date": date.datetime_to_str(date.years_ago(years=1)),
+        "start_date": date.datetime_to_str(date.years_ago(years=3)),
 
         "pe_max": "%.2f" % item_df["pe_ttm"].max(),
         "pe_min": "%.2f" % item_df["pe_ttm"].min(),
@@ -156,17 +157,23 @@ def index(_code=None):
 
 
 @webapp.route('/index/<_code>/pe.json', methods=['GET', 'POST'])
-def index_pe_json(_code=None):
+def index_pe_json(_code:str=None):
     if _code is None or len(_code) < 8:
         return "error"
-
+    _code = _code.upper()
+    is_all = request.args.get('all')
     data = []
     _market = 1 if _code[:2] == "SH" else 0
     _idx_code = _code[2:]
 
     stockModel = StockModel()
 
-    _idx_list = stockModel.stock_list(_filter={"code": _idx_code, "market": _market}, _sort=[("date", pymongo.ASCENDING)],
+    _filter = {"code": _idx_code, "market": _market}
+    if is_all is None or len(is_all) <= 0:
+        from_date = date.datetime_to_str(date.years_ago(10))
+        _filter["date"] = {"$gte": from_date}
+
+    _idx_list = stockModel.stock_list(_filter=_filter, _sort=[("date", pymongo.ASCENDING)],
                                       _fields={"date":1, "pe_ttm": 1, "close":1})
 
     item_df = pd.DataFrame(list(_idx_list), columns=["date", "pe_ttm", "close"])
@@ -196,14 +203,20 @@ def index_pe_json(_code=None):
 def index_pb_json(_code=None):
     if _code is None or len(_code) < 8:
         return "error"
-
+    _code = _code.upper()
+    is_all = request.args.get('all')
     data = []
     _market = 1 if _code[:2] == "SH" else 0
     _idx_code = _code[2:]
 
     stockModel = StockModel()
 
-    _idx_list = stockModel.stock_list(_filter={"code": _idx_code, "market": _market}, _sort=[("date", pymongo.ASCENDING)],
+    _filter = {"code": _idx_code, "market": _market}
+    if is_all is None or len(is_all) <= 0:
+        from_date = date.datetime_to_str(date.years_ago(10))
+        _filter["date"] = {"$gte": from_date}
+
+    _idx_list = stockModel.stock_list(_filter=_filter, _sort=[("date", pymongo.ASCENDING)],
                                       _fields={"date":1, "pb": 1, "close":1})
 
     item_df = pd.DataFrame(list(_idx_list), columns=["date", "pb", "close"])
@@ -232,14 +245,20 @@ def index_pb_json(_code=None):
 def index_dr_json(_code=None):
     if _code is None or len(_code) < 8:
         return "error"
-
+    _code = _code.upper()
+    is_all = request.args.get('all')
     data = []
     _market = 1 if _code[:2] == "SH" else 0
     _idx_code = _code[2:]
 
     stockModel = StockModel()
 
-    _idx_list = stockModel.stock_list(_filter={"code": _idx_code, "market": _market}, _sort=[("date", pymongo.ASCENDING)],
+    _filter = {"code": _idx_code, "market": _market}
+    if is_all is None or len(is_all) <= 0:
+        from_date = date.datetime_to_str(date.years_ago(10))
+        _filter["date"] = {"$gte": from_date}
+
+    _idx_list = stockModel.stock_list(_filter=_filter, _sort=[("date", pymongo.ASCENDING)],
                                       _fields={"date":1, "dr": 1, "close":1})
 
     item_df = pd.DataFrame(list(_idx_list), columns=["date", "dr", "close"])

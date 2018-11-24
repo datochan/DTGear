@@ -54,42 +54,21 @@
         myChart.setOption(option={
             title: {
                 text: "${ctx.get('title')}",
-                left: 'center',
-                textStyle: {
-                    "color": "#fff"
-                }
+                left: 40,
+                textStyle: {"color": "#fff"}
             },
-            textStyle: {
-                "color": "#fff"
-            },
+            grid: {left: 20,right: 20},
+            textStyle: {"color": "#fff"},
             legend: {
                 data:['上证50','沪深300','中证500','中小板指','创业扳指'],
-                orient: 'vertical',
-                left: 'right',
-                top: 'middle',
-                textStyle: {
-                    "color": "#fff"
-                }
+                orient: 'horizontal',
+                left: 'center',
+                textStyle: {"color": "#fff"}
             },
-            toolbox: {
-                show: true,
-                feature: {
-                    saveAsImage: {}
-                }
-            },
-            tooltip: {
-                trigger: 'axis'
-            },
-            xAxis: {
-                data: resp.map(function (item) {
-                    return item[0];
-                })
-            },
-            yAxis: {
-                splitLine: {
-                    show: true
-                }
-            },
+            toolbox: {left:'right',iconStyle:{borderColor: "#fff"},feature: {saveAsImage: {}}},
+            tooltip: {trigger: 'axis'},
+            xAxis: {data: resp.map(function (item) {return item[0];})},
+            yAxis: {splitLine: {show: true}},
             dataZoom: [{
                 type: 'slider',
                 borderColor: "#ddd",
@@ -97,16 +76,16 @@
                 backgroundColor:"rgba(47,69,84,0)",
                 fillerColor: "rgba(167,183,204,0.4)",
                 startValue: '${ctx.get("start_date")}',
-                dataBackground:{                        //数据阴影的样式。
+                dataBackground:{
                     areaStyle:{
-                        color:['rgba(250,250,250,0.3)'],//分隔区域颜色。分隔区域会按数组中颜色的顺序依次循环设置颜色。默认是一个深浅的间隔色。
-                        shadowColor:"red",          //阴影颜色
-                        shadowOffsetX:0,            //阴影水平方向上的偏移距离。
-                        shadowOffsetY:0,            //阴影垂直方向上的偏移距离
-                        shadowBlur:10,              //图形阴影的模糊大小。
-                        opacity:1,                  //图形透明度。支持从 0 到 1 的数字，为 0 时不绘制该图形
+                        color:['rgba(250,250,250,0.3)'],
+                        shadowColor:"red",
+                        shadowOffsetX:0,
+                        shadowOffsetY:0,
+                        shadowBlur:10,
+                        opacity:1
                     }
-                },
+                }
             }, {
             }],
             series: [{
@@ -114,32 +93,32 @@
                 type: 'line',
                 data: resp.map(function (item) {
                     return item[1];
-                }),
+                })
             },{
                 name: '沪深300',
                 type: 'line',
                 data: resp.map(function (item) {
                     return item[2];
-                }),
+                })
             },{
                 name: '中证500',
                 type: 'line',
                 data: resp.map(function (item) {
                     return item[3];
-                }),
+                })
             },{
                 name: '中小板指',
                 type: 'line',
                 data: resp.map(function (item) {
                     return item[4];
-                }),
+                })
             },{
                 name: '创业扳指',
                 type: 'line',
                 data: resp.map(function (item) {
                     return item[5];
-                }),
-            },]
+                })
+            }]
         });
 
     },dataType="json");

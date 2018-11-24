@@ -1,4 +1,7 @@
 # 每天
+# /etc/crontab
+# 05 15   * * *   datochan cd /opt/DTGear/ && ./update_all.sh > "./logs/$(date +"\%Y-\%m-\%d").log" 2>&1
+
 python3 ./cli.py update basics
 python3 ./cli.py update days
 python3 ./cli.py update bond
