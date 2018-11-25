@@ -22,5 +22,6 @@ python3 ./cli.py calc szhl
 python3 ./cli.py calc zxbz
 python3 ./cli.py calc zz500
 python3 ./cli.py calc zzhl
+python3 ./cli.py calc spyl
 
 date "+%Y%m%d" > ./last_update

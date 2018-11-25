@@ -189,7 +189,7 @@
                             saveAsImage: {}
                         }
                     },
-                    tooltip: {trigger: 'axis'},
+                    tooltip: {trigger: 'axis', axisPointer: { type: 'cross' }},
                     textStyle: {"color": "#fff"},
                     yAxis: [{name: "PE-TTM", type: "value", splitLine: {show: true}},
                         {name: "收盘点位",type: "value",splitLine: {show: false}}],
@@ -264,7 +264,7 @@
                             saveAsImage: {}
                         }
                     },
-                    tooltip: {trigger: 'axis'},
+                    tooltip: {trigger: 'axis', axisPointer: { type: 'cross' }},
                     textStyle: {"color": "#fff"},
                     yAxis: [{name: "PB", type: "value", splitLine: {show: true}}, {
                         name: "收盘点位",
@@ -343,7 +343,7 @@
                             saveAsImage: {}
                         }
                     },
-                    tooltip: {trigger: 'axis'},
+                    tooltip: {trigger: 'axis', axisPointer: { type: 'cross' }},
                     textStyle: {"color": "#fff"},
                     yAxis: [{name: "股息率", type: "value", splitLine: {show: true}}, {
                         name: "收盘点位",

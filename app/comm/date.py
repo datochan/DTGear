@@ -119,27 +119,27 @@ def last_days(_start=19901219, _type=1, _all=False):
 
             if _type == 0 and row["isWeekEnd"] == 1:
                 if _all is False:
-                    return row['calendarDate']
+                    return int(row['calendarDate'])
                 else:
-                    last_day_list.append(row['calendarDate'])
+                    last_day_list.append(int(row['calendarDate']))
 
             elif _type == 1 and row["isMonthEnd"] == 1:
                 if _all is False:
-                    return row['calendarDate']
+                    return int(row['calendarDate'])
                 else:
-                    last_day_list.append(row['calendarDate'])
+                    last_day_list.append(int(row['calendarDate']))
 
             elif _type == 2 and row["isQuarterEnd"] == 1:
                 if _all is False:
-                    return row['calendarDate']
+                    return int(row['calendarDate'])
                 else:
-                    last_day_list.append(row['calendarDate'])
+                    last_day_list.append(int(row['calendarDate']))
 
             elif _type == 3 and row["isYearEnd"] == 1:
                 if _all is False:
-                    return row['calendarDate']
+                    return int(row['calendarDate'])
                 else:
-                    last_day_list.append(row['calendarDate'])
+                    last_day_list.append(int(row['calendarDate']))
 
         return None if len(last_day_list) <= 0 else last_day_list
 

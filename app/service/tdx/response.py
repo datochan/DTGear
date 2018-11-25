@@ -235,10 +235,11 @@ class ResponseStockDays:
         return struct.calcsize(cls.__identity)
 
     @classmethod
-    def parse(cls, data:Buffer):
+    def parse(cls, data:Buffer, _fund:bool=False):
         """
         解析
         :param data:
+        :param bool _fund: 是否是基金
         :return:
         """
         data_stock = data.read_format(cls.__identity)
@@ -247,11 +248,15 @@ class ResponseStockDays:
 
         stock_day.date = "%d%02d%02d" % (data_stock[0] / 10000, data_stock[0] % 10000 / 100, data_stock[0] % 100)
 
-        stock_day.open = data_stock[1] / 100.00
-        stock_day.high = data_stock[2] / 100.00
-        stock_day.low = data_stock[3] / 100.00
-        stock_day.close = data_stock[4] / 100.00
-        stock_day.amount = data_stock[5] / 100.00
+        precision = 100.00
+        if _fund:
+            precision = 1000.00
+
+        stock_day.open = data_stock[1] / precision
+        stock_day.high = data_stock[2] / precision
+        stock_day.low = data_stock[3] / precision
+        stock_day.close = data_stock[4] / precision
+        stock_day.amount = data_stock[5]
         stock_day.volume = data_stock[6]
 
         return stock_day
