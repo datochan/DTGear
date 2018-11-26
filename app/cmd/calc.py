@@ -336,7 +336,7 @@ def cybz():
 
 @calc.command(help="计算食品饮料指数的估值信息")
 def spyl():
-    click.echo("开始计算创业扳指的估值信息...")
+    click.echo("开始计算食品饮料指数的估值信息...")
     idx_market = 1
     idx_code = '000807'
     start_date = 20120217
@@ -366,4 +366,4 @@ def spyl():
             db_client.upsert_one(_filter={"code": str(idx_code), "market": idx_market, "date": str(cal_date)},
                                  _value={"pe_ttm": _result[0], "pb": _result[1], "roe": _result[2], "dr": _result[3]})
 
-    click.echo("中小扳指的估值信息计算结束...")
+    click.echo("食品饮料指数的估值信息计算结束...")

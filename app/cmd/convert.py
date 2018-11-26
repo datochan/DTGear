@@ -14,7 +14,6 @@ def convert():
     """更新类功能集合"""
     pass
 
-
 @convert.command(help="转换股票财报数据的指标")
 def report():
     """

@@ -210,7 +210,11 @@ class TdxClient:
 
         idx = 0
         while idx < item_count:
-            item = ResponseStockDays.parse(body)
+            if stocks.type_with_code(stock_code) == 2:
+                item = ResponseStockDays.parse(body, _fund=True)
+            else:
+                item = ResponseStockDays.parse(body)
+
             current_df_list.append([item.date, int(market), stock_code, stock_name,
                                     item.open, item.low, item.high, item.close, item.volume, item.amount, is_st])
             idx += 1
@@ -306,7 +310,7 @@ class TdxClient:
 
 if __name__ == "__main__":
     def __update():
-        c1.data_gen = c1.update_base()
+        c1.data_gen = c1.update_history()
         c1.proxy.send(next(c1.data_gen))
 
     c1 = TdxClient(callback=__update)

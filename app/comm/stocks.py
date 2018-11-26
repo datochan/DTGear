@@ -57,6 +57,27 @@ def market_with_code(code:str):
     return 1
 
 
+def type_with_code(code:str):
+    """
+    :param str code: 六位数的股票代码
+    :return: 0 未知 1 指数, 2基金  3股票
+    """
+    if code.startswith("000") or code.startswith("399"):
+        # 是指数，股票有00开头的，所以必须先判断指数后判断股票
+        return 1
+
+    if code.startswith("15") or code.startswith("16") or code.startswith("50") or code.startswith("51"):
+        # 基金
+        return 2
+
+    if code.startswith("00") or code.startswith("30") or code.startswith("60") or code.startswith("51"):
+        # 基金
+        return 3
+
+    # 未知
+    return 0
+
+
 REPORT_PUBLISH_BUFFER = {}  # 股市财报披露数据的全局缓存
 def report_publish_time(_date, code):
     """

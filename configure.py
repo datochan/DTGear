@@ -33,6 +33,7 @@ config = {
         'stocks': "%s/data/stocks.csv" % PROJECT_ROOT,
         'stock_a': "%s/data/a.csv" % PROJECT_ROOT,
         'plots1': "%s/data/plots1.csv" % PROJECT_ROOT,
+        'plots2': "%s/data/plots2.csv" % PROJECT_ROOT,
         'st': "%s/data/st.csv" % PROJECT_ROOT,
         'bonus': "%s/data/bonus.csv" % PROJECT_ROOT,
         'reports': "%s/data/reports.csv" % PROJECT_ROOT,         # 股票财报目录
@@ -52,7 +53,7 @@ config = {
 
     },
     "db": {
-        "mongodb": "mongodb://localhost:27017/",
+        "mongodb": "mongodb://home.datochan.me:27017/",
         "database": "DTGear"
     }
 }
