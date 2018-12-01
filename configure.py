@@ -12,6 +12,13 @@ from datetime import datetime
 PROJECT_ROOT = os.path.abspath(os.path.dirname(__file__))
 
 config = {
+    "indexes": [
+        # '上证50', '沪深300', '中证500', '中证1000', '上证红利', '中证红利'，'中小板指', '创业扳指'
+        # '食品饮料'
+        [1, "000016", 20040102], [1, "000300", 20050408], [1, "000905", 20070115],
+        [1, "000852", 20141017], [1, "000015", 20050104], [1, "000922", 20041231], [0, "399005", 20061227], [0, "399006", 20100601],
+        [1, "000807", 20120217], [1, "000808", 20120217]
+    ],
     "logger": {
         "level": logging.DEBUG,
         "format": '%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s %(message)s',
@@ -32,14 +39,13 @@ config = {
         'bond': "%s/data/bond.csv" % PROJECT_ROOT,
         'stocks': "%s/data/stocks.csv" % PROJECT_ROOT,
         'stock_a': "%s/data/a.csv" % PROJECT_ROOT,
-        'plots1': "%s/data/plots1.csv" % PROJECT_ROOT,
-        'plots2': "%s/data/plots2.csv" % PROJECT_ROOT,
         'st': "%s/data/st.csv" % PROJECT_ROOT,
         'bonus': "%s/data/bonus.csv" % PROJECT_ROOT,
         'reports': "%s/data/reports.csv" % PROJECT_ROOT,         # 股票财报目录
         'report_item': "%s/data/reports/%s.zip",  # 股票财报目录
         'rt_item': "%s/data/reports/rt%s.csv",  # 股票财报目录
         'index': "%s/data/indexes/%s.csv",    # 指定指数的历史成分列表
+        'plots': "%s/data/plots/%s/%d-%s.csv",  # 策略执行结果的保存 粗略方法名/市场-代码.csv
     },
     "tdx": {
         "server1": {
@@ -53,7 +59,7 @@ config = {
 
     },
     "db": {
-        "mongodb": "mongodb://home.datochan.me:27017/",
+        "mongodb": "mongodb://localhost:27017/",
         "database": "DTGear"
     }
 }

@@ -27,7 +27,6 @@ def a():
     today = int("".join(time.strftime('%Y%m%d', time.localtime(time.time()))))
 
     try:
-
         stock_df = pd.read_csv(config.get("files").get("stock_a"), header=0, encoding="utf8")
         if len(stock_df) > 0:
             first = False
@@ -89,281 +88,49 @@ def a():
                      mode="a+", header=False, encoding='utf8', float_format="%.6f")
 
 
-@calc.command(help="计算HS300的PE/PB中值")
-def hs300():
-    click.echo("开始计算沪深300的估值信息...")
-    idx_market = 1
-    idx_code = '000300'
-    start_date = 20050408
+def _indexes(idx_market, idx_code, start_date, calendar_df):
     db_client = MongoDBClient(config.get("db").get("mongodb"), config.get("db").get("database"))
 
     today = int("".join(time.strftime('%Y%m%d', time.localtime(time.time()))))
-    calendar_df = pd.read_csv(config.get("files").get("calendar"), header=0)
+    item_last = db_client.find_stock_item(_filter={"code": idx_code, "market": idx_market, "dr": {"$exists": True}},
+                                          _sort=[("date", pymongo.DESCENDING)])
+
+    if item_last is not None and len(item_last) > 0:
+        calendar_df = calendar_df[calendar_df["calendarDate"] > int(item_last.get("date"))]
+
+    click.echo("\t开始 %s 指数的估值信息..." % idx_code)
+    for _, row in calendar_df.iterrows():
+        cal_date = int(row["calendarDate"])
+        if row['isOpen'] == 0 or cal_date < start_date or cal_date > today:
+            continue
+
+        click.echo("\t\t计算%d-%s - %d ..." % (idx_market, idx_code, cal_date))
+        _result = index.index_val(cal_date, idx_code, db_client)
+
+        if _result is not None:
+            db_client.upsert_one(_filter={"code": str(idx_code), "market": idx_market, "date": str(cal_date)},
+                                 _value={"pe_ttm": _result[0], "pb": _result[1], "roe": _result[2],
+                                         "dr": _result[3]})
+    click.echo("\t%s 指数的估值信息计算完毕" % idx_code)
+
+
+@calc.command(help="计算各指数的估值信息")
+@click.option('--code', type=click.STRING, default=None, help='是否更新全量数据, 默认只更新当前季度')
+def indexes(code):
+    idx_list = config.get("indexes")
 
     try:
-        item_last = db_client.find_stock_item(_filter={"code": idx_code, "market": idx_market, "dr": {"$exists": True}},
-                                              _sort=[("date", pymongo.DESCENDING)])
+        calendar_df = pd.read_csv(config.get("files").get("calendar"), header=0)
 
-        if item_last is not None and len(item_last) > 0:
-            calendar_df = calendar_df[calendar_df["calendarDate"] > int(item_last.get("date"))]
+        if code is not None:
+            for item in idx_list:
+                if item[1] != code:
+                    continue
+                _indexes(item[0], item[1], item[2], calendar_df)
+                return
+
+        for item in idx_list:
+            _indexes(item[0], item[1], item[2], calendar_df)
 
     except FileNotFoundError:
         pass
-
-    for _, row in calendar_df.iterrows():
-        cal_date = int(row["calendarDate"])
-        if row['isOpen'] == 0 or cal_date < start_date  or cal_date > today:
-            continue
-
-        click.echo("\t计算%d-%s - %d ..." % (idx_market, idx_code, cal_date))
-        _result = index.index_val(cal_date, idx_code, db_client)
-        if _result is not None:
-            db_client.upsert_one(_filter={"code": str(idx_code), "market": idx_market, "date": str(cal_date)},
-                                 _value={"pe_ttm": _result[0], "pb": _result[1], "roe": _result[2], "dr": _result[3]})
-
-    click.echo("沪深300的估值信息计算结束...")
-
-
-@calc.command(help="计算上证红利的PE/PB中值")
-def szhl():
-    click.echo("开始计算上证红利的估值信息...")
-    idx_market = 1
-    idx_code = '000015'
-    start_date = 20050104
-    db_client = MongoDBClient(config.get("db").get("mongodb"), config.get("db").get("database"))
-
-    today = int("".join(time.strftime('%Y%m%d', time.localtime(time.time()))))
-    calendar_df = pd.read_csv(config.get("files").get("calendar"), header=0)
-
-    try:
-        item_last = db_client.find_stock_item(_filter={"code": idx_code, "market": idx_market, "dr": {"$exists": True}},
-                                              _sort=[("date", pymongo.DESCENDING)])
-
-        if item_last is not None and len(item_last) > 0:
-            calendar_df = calendar_df[calendar_df["calendarDate"] > int(item_last.get("date"))]
-
-    except FileNotFoundError:
-        pass
-
-    for _, row in calendar_df.iterrows():
-        cal_date = int(row["calendarDate"])
-        if row['isOpen'] == 0 or cal_date < start_date  or cal_date > today:
-            continue
-
-        click.echo("\t计算%d-%s - %d ..." % (idx_market, idx_code, cal_date))
-        _result = index.index_val(cal_date, idx_code, db_client)
-        if _result is not None:
-            db_client.upsert_one(_filter={"code": str(idx_code), "market": idx_market, "date": str(cal_date)},
-                                 _value={"pe_ttm": _result[0], "pb": _result[1], "roe": _result[2], "dr": _result[3]})
-
-    click.echo("上证红利的估值信息计算结束...")
-
-
-@calc.command(help="计算中证红利的PE/PB中值")
-def zzhl():
-    click.echo("开始计算中证红利的估值信息...")
-    idx_market = 1
-    idx_code = '000922'
-    start_date = 20041231
-    db_client = MongoDBClient(config.get("db").get("mongodb"), config.get("db").get("database"))
-
-    today = int("".join(time.strftime('%Y%m%d', time.localtime(time.time()))))
-    calendar_df = pd.read_csv(config.get("files").get("calendar"), header=0)
-
-    try:
-        item_last = db_client.find_stock_item(_filter={"code": idx_code, "market": idx_market, "dr": {"$exists": True}},
-                                              _sort=[("date", pymongo.DESCENDING)])
-
-        if item_last is not None and len(item_last) > 0:
-            calendar_df = calendar_df[calendar_df["calendarDate"] > int(item_last.get("date"))]
-
-    except FileNotFoundError:
-        pass
-
-    for _, row in calendar_df.iterrows():
-        cal_date = int(row["calendarDate"])
-        if row['isOpen'] == 0 or cal_date < start_date  or cal_date > today:
-            continue
-
-        click.echo("\t计算%d-%s - %d ..." % (idx_market, idx_code, cal_date))
-        _result = index.index_val(cal_date, idx_code, db_client)
-        if _result is not None:
-            db_client.upsert_one(_filter={"code": str(idx_code), "market": idx_market, "date": str(cal_date)},
-                                 _value={"pe_ttm": _result[0], "pb": _result[1], "roe": _result[2], "dr": _result[3]})
-
-    click.echo("中证红利的估值信息计算结束...")
-
-
-@calc.command(help="计算上证50的估值信息")
-def sz50():
-    click.echo("开始计算上证50的估值信息...")
-    idx_market = 1
-    idx_code = '000016'
-    start_date = 20040102
-    db_client = MongoDBClient(config.get("db").get("mongodb"), config.get("db").get("database"))
-
-    today = int("".join(time.strftime('%Y%m%d', time.localtime(time.time()))))
-    calendar_df = pd.read_csv(config.get("files").get("calendar"), header=0)
-
-    try:
-        item_last = db_client.find_stock_item(_filter={"code": idx_code, "market": idx_market, "dr": {"$exists": True}},
-                                              _sort=[("date", pymongo.DESCENDING)])
-
-        if item_last is not None and len(item_last) > 0:
-            calendar_df = calendar_df[calendar_df["calendarDate"] > int(item_last.get("date"))]
-
-    except FileNotFoundError:
-        pass
-
-    for _, row in calendar_df.iterrows():
-        cal_date = int(row["calendarDate"])
-        if row['isOpen'] == 0 or cal_date < start_date  or cal_date > today:
-            continue
-
-        click.echo("\t计算%d-%s - %d ..." % (idx_market, idx_code, cal_date))
-        _result = index.index_val(cal_date, idx_code, db_client)
-        if _result is not None:
-            db_client.upsert_one(_filter={"code": str(idx_code), "market": idx_market, "date": str(cal_date)},
-                                 _value={"pe_ttm": _result[0], "pb": _result[1], "roe": _result[2], "dr": _result[3]})
-
-    click.echo("上证50的估值信息计算结束...")
-
-
-@calc.command(help="计算中证500的估值信息")
-def zz500():
-    click.echo("开始计算中证500的估值信息...")
-    idx_market = 1
-    idx_code = '000905'
-    start_date = 20070115
-    db_client = MongoDBClient(config.get("db").get("mongodb"), config.get("db").get("database"))
-
-    today = int("".join(time.strftime('%Y%m%d', time.localtime(time.time()))))
-    calendar_df = pd.read_csv(config.get("files").get("calendar"), header=0)
-
-    try:
-        item_last = db_client.find_stock_item(_filter={"code": idx_code, "market": idx_market, "dr": {"$exists": True}},
-                                              _sort=[("date", pymongo.DESCENDING)])
-
-        if item_last is not None and len(item_last) > 0:
-            calendar_df = calendar_df[calendar_df["calendarDate"] > int(item_last.get("date"))]
-
-    except FileNotFoundError:
-        pass
-
-    for _, row in calendar_df.iterrows():
-        cal_date = int(row["calendarDate"])
-        if row['isOpen'] == 0 or cal_date < start_date  or cal_date > today:
-            continue
-
-        click.echo("\t计算%d-%s - %d ..." % (idx_market, idx_code, cal_date))
-        _result = index.index_val(cal_date, idx_code, db_client)
-        if _result is not None:
-            db_client.upsert_one(_filter={"code": str(idx_code), "market": idx_market, "date": str(cal_date)},
-                                 _value={"pe_ttm": _result[0], "pb": _result[1], "roe": _result[2], "dr": _result[3]})
-
-    click.echo("中证500的估值信息计算结束...")
-
-
-@calc.command(help="计算中小扳指的估值信息")
-def zxbz():
-    click.echo("开始计算中小扳指的估值信息...")
-    idx_market = 0
-    idx_code = '399005'
-    start_date = 20061227
-    db_client = MongoDBClient(config.get("db").get("mongodb"), config.get("db").get("database"))
-
-    today = int("".join(time.strftime('%Y%m%d', time.localtime(time.time()))))
-    calendar_df = pd.read_csv(config.get("files").get("calendar"), header=0)
-
-    try:
-        item_last = db_client.find_stock_item(_filter={"code": idx_code, "market": idx_market, "dr": {"$exists": True}},
-                                              _sort=[("date", pymongo.DESCENDING)])
-
-        if item_last is not None and len(item_last) > 0:
-            calendar_df = calendar_df[calendar_df["calendarDate"] > int(item_last.get("date"))]
-
-    except FileNotFoundError:
-        pass
-
-    for _, row in calendar_df.iterrows():
-        cal_date = int(row["calendarDate"])
-        if row['isOpen'] == 0 or cal_date < start_date  or cal_date > today:
-            continue
-
-        click.echo("\t计算%d-%s - %d ..." % (idx_market, idx_code, cal_date))
-        _result = index.index_val(cal_date, idx_code, db_client)
-        if _result is not None:
-            db_client.upsert_one(_filter={"code": str(idx_code), "market": idx_market, "date": str(cal_date)},
-                                 _value={"pe_ttm": _result[0], "pb": _result[1], "roe": _result[2], "dr": _result[3]})
-
-    click.echo("中小扳指的估值信息计算结束...")
-
-
-@calc.command(help="计算创业扳指的估值信息")
-def cybz():
-    click.echo("开始计算创业扳指的估值信息...")
-    idx_market = 0
-    idx_code = '399006'
-    start_date = 20100601
-    db_client = MongoDBClient(config.get("db").get("mongodb"), config.get("db").get("database"))
-
-    today = int("".join(time.strftime('%Y%m%d', time.localtime(time.time()))))
-    calendar_df = pd.read_csv(config.get("files").get("calendar"), header=0)
-
-    try:
-        item_last = db_client.find_stock_item(_filter={"code": idx_code, "market": idx_market, "dr": {"$exists": True}},
-                                              _sort=[("date", pymongo.DESCENDING)])
-
-        if item_last is not None and len(item_last) > 0:
-            calendar_df = calendar_df[calendar_df["calendarDate"] > int(item_last.get("date"))]
-
-    except FileNotFoundError:
-        pass
-
-    for _, row in calendar_df.iterrows():
-        cal_date = int(row["calendarDate"])
-        if row['isOpen'] == 0 or cal_date < start_date  or cal_date > today:
-            continue
-
-        click.echo("\t计算%d-%s - %d ..." % (idx_market, idx_code, cal_date))
-        _result = index.index_val(cal_date, idx_code, db_client)
-        if _result is not None:
-            db_client.upsert_one(_filter={"code": str(idx_code), "market": idx_market, "date": str(cal_date)},
-                                 _value={"pe_ttm": _result[0], "pb": _result[1], "roe": _result[2], "dr": _result[3]})
-
-    click.echo("中小扳指的估值信息计算结束...")
-
-
-@calc.command(help="计算食品饮料指数的估值信息")
-def spyl():
-    click.echo("开始计算食品饮料指数的估值信息...")
-    idx_market = 1
-    idx_code = '000807'
-    start_date = 20120217
-    db_client = MongoDBClient(config.get("db").get("mongodb"), config.get("db").get("database"))
-
-    today = int("".join(time.strftime('%Y%m%d', time.localtime(time.time()))))
-    calendar_df = pd.read_csv(config.get("files").get("calendar"), header=0)
-
-    try:
-        item_last = db_client.find_stock_item(_filter={"code": idx_code, "market": idx_market, "dr": {"$exists": True}},
-                                              _sort=[("date", pymongo.DESCENDING)])
-
-        if item_last is not None and len(item_last) > 0:
-            calendar_df = calendar_df[calendar_df["calendarDate"] > int(item_last.get("date"))]
-
-    except FileNotFoundError:
-        pass
-
-    for _, row in calendar_df.iterrows():
-        cal_date = int(row["calendarDate"])
-        if row['isOpen'] == 0 or cal_date < start_date  or cal_date > today:
-            continue
-
-        click.echo("\t计算%d-%s - %d ..." % (idx_market, idx_code, cal_date))
-        _result = index.index_val(cal_date, idx_code, db_client)
-        if _result is not None:
-            db_client.upsert_one(_filter={"code": str(idx_code), "market": idx_market, "date": str(cal_date)},
-                                 _value={"pe_ttm": _result[0], "pb": _result[1], "roe": _result[2], "dr": _result[3]})
-
-    click.echo("食品饮料指数的估值信息计算结束...")

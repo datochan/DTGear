@@ -11,6 +11,11 @@
     <%block name="header"/>
 </head>
 <body>
+    <div class="site-header" role="banner">
+        <div class="header fixed">
+            <%block></%block>
+        <div class="clear"></div>
+    </div>
     <div class="container">
         <div class="row">
             <div class="main-page">

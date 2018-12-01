@@ -9,7 +9,6 @@ from pyquery import PyQuery as pq
 
 from app import models
 from app.comm.utils import netbase, crypto
-from app.models import MongoDBClient
 from app.service import thsi
 from app.service.tdx import TdxClient
 from configure import *
@@ -53,9 +52,15 @@ def days():
     asyncore.loop(timeout=10.0)  # 数据更新结束后会自动退出
 
 
+@update.command(help="更新指数成分股")
+def index():
+    """todo 从金融街爬取成分股信息"""
+    pass
+
+
 @update.command(help="更新ST信息")
 def st():
-    db_client = MongoDBClient("mongodb://localhost:27017/", "DTGear")
+    db_client = models.MongoDBClient(config.get("db").get("mongodb"), config.get("db").get("database"))
 
     st_df = pd.read_csv(config.get("files").get("st"), header=0)
     st_df['code'] = st_df['code'].map(lambda x: str(x).zfill(6))

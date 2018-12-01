@@ -21,8 +21,6 @@ def pb_json():
     """首页图标需要的数据 """
     data = []
 
-    # columns=["date","sz50","hs300","zz500","zxbz","cybz"]
-
     stockModel = StockModel()
     # '上证50', '沪深300', '中证500', '中小板指', '创业扳指'
     _idx_list = stockModel.stock_list(_filter={"code": "000016", "market": 1}, _sort=[("date", pymongo.ASCENDING)],
