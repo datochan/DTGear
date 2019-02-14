@@ -6,6 +6,7 @@ from configure import PROJECT_ROOT, config
 
 from app.comm.utils import number
 
+CUR_IDX_CODE = ""
 INDEX_MEMBER_DF = pd.DataFrame()
 
 
@@ -17,6 +18,7 @@ def index_val(_date:int, _idx_code:str, _mongo_client=None):
     :param _mongo_client: mongodb 连接实例
     :return:
     """
+    global CUR_IDX_CODE
     global INDEX_MEMBER_DF
     # 有复权价代表是股票
     stock_day_list = _mongo_client.find_stock_list(_filter={"date": str(_date), "fixed": {"$exists": True}},
@@ -24,7 +26,9 @@ def index_val(_date:int, _idx_code:str, _mongo_client=None):
                                                _fields={"market": 1, "code": 1, "close": 1,
                                                         "pe_ttm": 1, "pb": 1, "roe": 1, "dr": 1})
 
-    if len(INDEX_MEMBER_DF) <= 0:
+    if CUR_IDX_CODE != _idx_code:
+        # 如果不是同一个指数，则清空缓存重新处理
+        INDEX_MEMBER_DF = pd.DataFrame()
         today = int("".join(time.strftime('%Y%m%d', time.localtime(time.time()))))
         INDEX_MEMBER_DF = pd.read_csv(config.get("files").get("index") % (PROJECT_ROOT, _idx_code), header=0)
         INDEX_MEMBER_DF = INDEX_MEMBER_DF.fillna(today)

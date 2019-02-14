@@ -219,7 +219,7 @@ class TdxClient:
                                     item.open, item.low, item.high, item.close, item.volume, item.amount, is_st])
             idx += 1
 
-        print("获取 %s 的日线数据" % stock_code)
+        print("获取 %d-%s 的日线数据" % (market, stock_code))
 
 
         hs_df = pd.DataFrame(current_df_list, columns=['date', 'market', 'code', 'name', 'open', 'low', 'high', 'close',

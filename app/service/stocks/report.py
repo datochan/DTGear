@@ -30,11 +30,8 @@ def report_with_act(_date:int, _str_code=None):
     report_date = date.report_date_with(_date)
     _item = report_with_plan(report_date, _str_code)
 
-    if _item is None:
-        return None
-
     # 判断当前日期是否大于披露时间，否则取用上一个财报信息
-    if _item['publish'] <= _date:
+    if _item is not None and _item['publish'] <= _date:
         return _item
 
     report_date = date.prev_report_date_with(report_date)

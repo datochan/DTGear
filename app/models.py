@@ -11,6 +11,8 @@ import pymongo
 from pymongo.database import Database
 from pymongo.collection import Collection
 
+from configure import config
+
 
 class MongoDBClient:
     __client: pymongo.MongoClient
@@ -55,6 +57,6 @@ class MongoDBClient:
             print(str(ex))
 
 if __name__ == "__main__":
-    db_client = MongoDBClient("mongodb://localhost:27017/", "DTGear")
+    db_client = MongoDBClient(config.get("db").get("mongodb"), config.get("db").get("database"))
     date = db_client.find_stock_item({"code": "399001", "market": 0})
     print("hello world!")

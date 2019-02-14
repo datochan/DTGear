@@ -108,6 +108,7 @@ def _indexes(idx_market, idx_code, start_date, calendar_df):
         _result = index.index_val(cal_date, idx_code, db_client)
 
         if _result is not None:
+            click.echo("\t\t\t code:%s, pe_ttm:%s, pb:%s" % (idx_code, _result[0], _result[1]))
             db_client.upsert_one(_filter={"code": str(idx_code), "market": idx_market, "date": str(cal_date)},
                                  _value={"pe_ttm": _result[0], "pb": _result[1], "roe": _result[2],
                                          "dr": _result[3]})
@@ -117,6 +118,7 @@ def _indexes(idx_market, idx_code, start_date, calendar_df):
 @calc.command(help="计算各指数的估值信息")
 @click.option('--code', type=click.STRING, default=None, help='是否更新全量数据, 默认只更新当前季度')
 def indexes(code):
+    click.echo("开始计算各指数的估值信息...")
     idx_list = config.get("indexes")
 
     try:
@@ -134,3 +136,5 @@ def indexes(code):
 
     except FileNotFoundError:
         pass
+
+    click.echo("各指数的估值信息计算完毕...")
