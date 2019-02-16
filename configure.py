@@ -61,7 +61,7 @@ config = {
 
     },
     "db": {
-        "mongodb": "mongodb://localhost:27017/",
+        "mongodb": "mongodb://DTGear:a11111111@192.168.1.1:27017/",
         "database": "DTGear"
     }
 }

@@ -43,6 +43,7 @@ def indexes():
         "start_date": _tmp_date
     })
 
+
 @webapp.route('/indexes.json', methods=['GET', 'POST'])
 def indexes_json():
     """显示指数估值信息"""
