@@ -27,8 +27,7 @@ config = {
         "filename": "dtgear-%s.log" % str(datetime.now())[:10]
     },
     "urls": {
-        "stock_fin": "http://down.tdx.com.cn:8001/fin",
-        "fin_list_file": "gpcw.txt",  # 财务数据文件列表
+        "fin_list_prex": "tdxfin",  # 财务数据文件列表
 
         'china_bond_list': 'http://yield.chinabond.com.cn/cbweb-pbc-web/pbc/historyQuery?startDate=%s&endDate=%s'
                            '&gjqx=0&qxId=hzsylqx&locale=cn_ZH',
@@ -50,18 +49,23 @@ config = {
         'plots': "%s/data/plots/%s/%d-%s.csv",  # 策略执行结果的保存 粗略方法名/市场-代码.csv
     },
     "tdx": {
-        "server1": {
-            "host": "121.14.110.200",
-            "port": 443
+        "hq_server": {
+            # "host": "121.14.110.200",
+            # "port": 443
+            # # 金融终端V7.43
+            "host": "119.147.171.206",
+            "port": 80
         },
-        "server2": {
-            "host": "121.14.110.200",
-            "port": 443
+        "cw_server": {
+            # 财务数据
+            # calc.tdx.com.cn, calc2.tdx.com.cn
+            "host": "101.132.147.181", # 120.76.152.87:7709
+            "port": 7709
         },
 
     },
     "db": {
-        "mongodb": "mongodb://DTGear:a11111111@192.168.1.1:27017/",
+        "mongodb": "mongodb://dtgear:a11111111@192.168.1.3:27017/",
         "database": "DTGear"
     }
 }

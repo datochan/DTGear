@@ -20,7 +20,7 @@ class MongoDBClient:
     __stock: Collection
 
     def __init__(self, uri="mongodb://localhost:27017/", db_name="DTGear"):
-        self.__client = pymongo.MongoClient(uri)
+        self.__client = pymongo.MongoClient("%s%s" % (uri, db_name))
         self.__db = self.__client[db_name]
         self.__stock = self.__db["stocks"]
 

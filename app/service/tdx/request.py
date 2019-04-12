@@ -15,7 +15,7 @@ from app.comm.utils import strings, crypto
 
 class RequestNode(object):
     """
-    请求封包的基本包装
+        财报相关的封包
         # 	EventId   uint16
         # 	CmdId     uint16
         # 	IsRaw     byte
@@ -23,6 +23,7 @@ class RequestNode(object):
         # 	RawData   interface{}    // 原始请求封包体的原始数据
     """
     def __init__(self):
+        self.prex_flag = 0
         self.event_id = 0
         self.cmd_id = 0
         self.idx = 0
@@ -56,15 +57,44 @@ class RequestNode(object):
         # 	eventId        uint16    // H: 事件标识, 靠此字段可以确定封包的类别
         :return:
         """
-        if self.idx == 0:
-            self.idx = random.randint(0x00, 0x7fff)
-        header = struct.pack("<BHHBHHH", 0x0C, self.idx, self.cmd_id, self.is_compress,
+        header = struct.pack("<BHHBHHH", self.prex_flag, self.idx, self.cmd_id, self.is_compress,
                              self.body_length() + 2, self.body_length() + 2, self.event_id)
 
         return b"".join([header, self.raw_data])
 
 
-def gen_device_node(main_version=7.29, core_version=5.895):
+class RequestHQNode(RequestNode):
+    """
+    请求行情数据封包的基本包装
+        # 	EventId   uint16
+        # 	CmdId     uint16
+        # 	IsRaw     byte
+        # 	Index     uint16
+        # 	RawData   interface{}    // 原始请求封包体的原始数据
+    """
+    def __init__(self):
+        super(RequestHQNode, self).__init__()
+        self.prex_flag = 0x0C
+
+    def generate(self):
+        """
+        生成通达信通讯封包
+        # 	flag  byte      // 固定为0x0C
+        # 	index uint16    // idx(先随机，发现特殊值再单独处理)
+        # 	cmdId uint16    // 具体命令的子标识
+        # 	isRaw byte      // 是否是未压缩的原始封包(已知封包全是0,待发现特殊值再特殊封装)
+        # 	bodyLength uint16        // H: 分别是封包长度(封包长度+2字节)
+        # 	bodyMaxLength  uint16    // H: 解压所需要的空间大小(已知两个相等待发现特殊值再特殊处理)
+        # 	eventId        uint16    // H: 事件标识, 靠此字段可以确定封包的类别
+        :return:
+        """
+        if self.idx == 0:
+            self.idx = random.randint(0x00, 0x7fff)
+
+        return super(RequestHQNode, self).generate()
+
+
+def gen_device_node(main_version=7.43, core_version=5.92):
     """
     生成注册设备封包
     :param main_version: 软件版本号, 默认为: 7.29
@@ -81,7 +111,7 @@ def gen_device_node(main_version=7.29, core_version=5.895):
         # 	macAddr     [12]byte   // rand
         # 	unknown6    [89]byte   // 0
     """
-    req = RequestNode()
+    req = RequestHQNode()
     req.event_id = 0x0B
     req.cmd_id   = 0x007B
 
@@ -98,7 +128,7 @@ def gen_market_init():
     初始化市场行情信息
     :return:
     """
-    req = RequestNode()
+    req = RequestHQNode()
     req.event_id = 0x000D
     req.cmd_id   = 0x0094
     req.is_compress = 1
@@ -112,7 +142,7 @@ def gen_notice():
     请求服务器公告信息
     :return:
     """
-    req = RequestNode()
+    req = RequestHQNode()
     req.event_id = 0x0FDB
     req.cmd_id   = 0x0099
     req.is_compress = 1
@@ -126,7 +156,7 @@ def gen_market_stock_count(market=0):
     :param market: 深圳0, 上海1
     :return:
     """
-    req = RequestNode()
+    req = RequestHQNode()
     req.event_id = 0x044E
     req.is_compress = 1
 
@@ -148,7 +178,7 @@ def gen_stock_base(market, offset):
     :param offset:
     :return:
     """
-    req = RequestNode()
+    req = RequestHQNode()
     req.event_id = 0x0450
     req.is_compress = 1
 
@@ -169,7 +199,7 @@ def gen_stock_bonus(stocks:bytes, idx):
     :param idx:
     :return:
     """
-    req = RequestNode()
+    req = RequestHQNode()
     req.event_id = 0x000F
     req.cmd_id = 0x0076
     req.is_compress = 1
@@ -197,12 +227,31 @@ def gen_stock_days(market, code, start:int, end:int, idx):
     # -- ----- -- ----- ----------- ----- ----- ----------------- ----------- ----------- -----
     #    idx                              market code             start       end
     """
-    req = RequestNode()
+    req = RequestHQNode()
     req.event_id = 0x0FCD
     req.cmd_id = 0x0087
     req.is_compress = 1
     req.idx = idx
 
     req.raw_data = struct.pack("<H6s2IH", market, code.encode("ascii"), start, end, 0x4)
+
+    return req
+
+
+def gen_report_download(filename, offset=0):
+    """
+    请求财务数据状态信息
+    :param str filename:
+    :param int offset: 从多少偏移开始下载
+    :return:
+    """
+    req = RequestNode()
+    req.event_id = 0x06B9
+    req.cmd_id   = 0
+    req.is_compress = 0
+    req.raw_data = b"\01"
+    idx = offset
+    node_size = 0x7530
+    req.raw_data = struct.pack("<2I100s", idx, node_size, filename.encode('ascii'))
 
     return req

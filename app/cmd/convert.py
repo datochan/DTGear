@@ -155,11 +155,12 @@ def pe_pb_roe():
         try:
             print("计算 %d-%s 的PE、PB、ROE数据..." % (row["market"], row["code"]))
 
-            stock_day_list = db_client.find_stock_list(_filter={"code": row['code'], "market": row["market"]},
+            stock_day_list = db_client.find_stock_list(_filter={"code": row['code'], "market": row["market"],
+                                                                "close": {"$exists": True}},
                                                        _sort=[("date", pymongo.ASCENDING)],
                                                        _fields={"date":1, "close":1})
             if len(stock_day_list) <= 0:
-                # 股票本身没有交易量无需复权
+                # 股票本身没有交易量
                 continue
 
             stock_day_df = pd.DataFrame(stock_day_list, columns=['date', 'close'])
@@ -169,7 +170,7 @@ def pe_pb_roe():
                                                   _sort=[("date", pymongo.DESCENDING)])
 
             if item_last is not None and len(item_last) > 0:
-                # 如果之前计算过后复权价，则无需重头计算
+                # 如果之前计算过，则无需重头计算
                 last_day_df = stock_day_df[stock_day_df["date"] == item_last['date']]
                 stock_day_df = stock_day_df[stock_day_df.index > last_day_df.index.values[0]]
 
@@ -210,7 +211,8 @@ def mv():
             ccs = 0  # 流通股
             tcs = 0  # 总股本
 
-            stock_day_list = db_client.find_stock_list(_filter={"code": row['code'], "market": row["market"]},
+            stock_day_list = db_client.find_stock_list(_filter={"code": row['code'], "market": row["market"],
+                                                                "close": {"$exists": True}},
                                                        _sort=[("date", pymongo.ASCENDING)],
                                                        _fields={"date":1, "close":1})
             if len(stock_day_list) <= 0:
@@ -225,7 +227,7 @@ def mv():
                                                       _sort=[("date", pymongo.DESCENDING)])
 
                 if item_last is not None and len(item_last) > 0:
-                    # 如果之前计算过后复权价，则无需重头计算
+                    # 如果之前计算过，则无需重头计算
                     last_day_df = stock_day_df[stock_day_df["date"] == item_last['date']]
                     stock_day_df = stock_day_df[stock_day_df.index > last_day_df.index.values[0]]
 
