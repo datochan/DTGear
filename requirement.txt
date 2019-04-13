@@ -7,7 +7,7 @@ Flask-PyMongo==2.1.0
 Flask-Script==2.0.6
 Flask-WTF==0.14.2
 itsdangerous==0.24
-Jinja2==2.10
+Jinja2>=2.10.1
 lxml==4.2.5
 Mako==1.0.7
 MarkupSafe==1.0
