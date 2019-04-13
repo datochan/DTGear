@@ -38,13 +38,14 @@ class TdxReportClient(TCPClient):
         print("收到未知封包, event_id = %d, content: %s." % (header.event_id, str(binascii.b2a_hex(body.bytes()))))
 
     def on_report_list(self, header:ResponseHeader, body:Buffer):
+        body.read_format("<I")
         content = body.bytes().decode("utf-8")
 
         self.cw_list = content.split('\n')
         self.__callback_proc()
 
     def on_download(self, header:ResponseHeader, body:Buffer):
-        length = body.read_format("<I")[0]
+        length = body.read_format("<I")[0]   # 移除body大小字段, 只保留文件内容
         content = body.bytes()
 
         if self.current_report_offset is 0:
