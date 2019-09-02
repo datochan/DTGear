@@ -17,5 +17,5 @@ pymongo==3.7.2
 pyquery==1.4.0
 pytz==2018.5
 six==1.11.0
-Werkzeug==0.14.1
+Werkzeug==0.15.3
 WTForms==2.2.1
