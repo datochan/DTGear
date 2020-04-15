@@ -1,11 +1,7 @@
 # 每天
 # /etc/crontab
-<<<<<<< HEAD
 # 05 15   * * *   datochan cd /opt/DTGear/ && ./update_all.sh > "./logs/$(date +"\%Y-\%m-\%d").log" 2>&1
-=======
-# 25 15   * * *   datochan cd /home/datochan/Documents/DTGear/ && ./update_all.sh > "./logs/$(date +"\%Y-\%m-\%d").log" 2>&1
 
->>>>>>> origin/dev
 source /home/datochan/Documents/DTGear/venv/bin/activate
 
 /home/datochan/Documents/DTGear/venv/bin/python ./cli.py update basics
