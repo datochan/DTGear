@@ -116,7 +116,7 @@ def _indexes(idx_market, idx_code, start_date, calendar_df):
 
 
 @calc.command(help="计算各指数的估值信息")
-@click.option('--code', type=click.STRING, default=None, help='是否更新全量数据, 默认只更新当前季度')
+@click.option('--code', type=click.STRING, default=None, help='是否只更新指定的指数, 默认更新全部')
 def indexes(code):
     click.echo("开始计算各指数的估值信息...")
     idx_list = config.get("indexes")
