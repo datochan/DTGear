@@ -80,11 +80,11 @@ def report_time(time_url, format_str, rt_file_path, date_str=None):
             if q3 <= target: date_list.append("%d0930"%target.year)
             elif q2 <= target: date_list.append("%d0630"%target.year)
             elif q1 <= target: date_list.append("%d0331"%target.year)
-            else: date_list.append("%d1231"%target.year-1)
+            else: date_list.append("%d1231"%(target.year-1))
 
             if today.year == target.year and today.month == 4:
                 # 当年的4月份也得更新年报
-                date_list.append("%d1231" % target.year - 1)
+                date_list.append("%d1231" % (target.year-1))
         else:
             print("指定的年报披露日期有误,不能超过当前日期!")
             return

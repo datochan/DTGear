@@ -27,3 +27,118 @@
 
 1. 加入执行日志,以便跟踪程序运行状态。
 1. 加入 Web页面 可以围绕希望提供的辅助功能出具相应的报告及回测页面(各种图表)。
+
+---
+
+### 常见问题
+
+1. 获取指数成分股的方法
+之前是试用通联数据的接口抓的初始数据，之后都是根据中证指数公司的公告手工维护，很是辛苦。后来发现优矿可以无限使用通联数据的接口，这里将更新成分股的脚本共享出来:
+
+``` python
+"""
+获取指数成分股
+成分股变更记录
+"""
+import time
+import datetime
+import pandas as pd
+
+index_list = [
+    # 上证50, 代码, 基准日
+    {"code": "000016", "date": "20040102"}, 
+    # 沪深300, 代码, 基准日
+    {"code": "000300", "date": "20050408"}, 
+    # 中证500, 代码, 基准日
+    {"code": "000905", "date": "20070115"}, 
+    # 中证1000, 代码, 基准日
+    {"code": "000852", "date": "20141017"}
+]
+
+def str_to_datetime(_date):
+    """将字符串转换成datetime类型"""
+    try:
+        return datetime.datetime.strptime(str(_date), "%Y%m%d")
+    except Exception as ex:
+        print("----->%s" % str(ex))
+
+
+def datetime_to_str(date):
+    """将datetime类型转换为日期型字符串,格式为2008-08-02"""
+    return str(date)[0:10].replace("-", "")
+
+
+def next_day(date):
+    """
+    获取某个日期的下一个交易日
+    :param date: str xxxxxxxx 格式
+    :return:
+    """
+    if len(date) <= 0:
+        return u""
+    
+    current = str_to_datetime(date)
+    delta = datetime.timedelta(days=1)
+    target = current + delta
+    return datetime_to_str(target)
+
+def last_date(code):
+    """
+    获取指定指数成分股最后更新的日期
+    没找到返回空字符串
+    """
+    try:
+        idx_df = pd.read_csv("%s.csv" % code)
+        item_last = idx_df.loc[idx_df.index[-1]]
+        return str(item_last["intoDate"])
+    except Exception, ex:
+        return u""
+
+
+def index_member(code, _init_date):
+    print("\t开始获取 %s 的成分股数据..." % code)
+    is_first = False
+    current_count = 0
+    begin_date = next_day(last_date(code))
+    
+    if len(begin_date) <= 0:
+        begin_date = _init_date
+        is_first = True
+
+    today = "".join(time.strftime('%Y%m%d', time.localtime(time.time())))
+    calendar_df = DataAPI.TradeCalGet(exchangeCD=u"XSHG,XSHE",beginDate=begin_date,endDate=today,field=u"", pandas="1")
+    
+    for index, row in calendar_df.iterrows():
+        if row['isOpen'] != 1:
+            continue
+            
+        print("\t --> 开始处理 %s 当日的成分股信息..." % row['calendarDate'])
+        idx_df = DataAPI.IdxConsGet(secID=u"",ticker=code,isNew=u"",intoDate=row['calendarDate'],field=u"",pandas="1")
+        
+        filter_df = idx_df[idx_df["intoDate"]==row['calendarDate']]
+        if len(filter_df) == current_count:
+            continue
+
+        currnet_count = len(filter_df)
+
+        filter_df['intoDate'] = filter_df['intoDate'].astype(str).str.replace('-', '').replace('nan', '')
+        filter_df['outDate'] = filter_df['outDate'].astype(str).str.replace('-', '').replace('nan', '')
+
+        if is_first is True:
+            filter_df.to_csv('%s.csv' % code, index=False, mode="w", header=True, encoding='utf8', float_format="%.6f")
+            is_first = False
+        else:
+            filter_df.to_csv('%s.csv' % code, index=False, header=False, mode='a+', encoding='utf8', float_format="%.6f")
+
+    print("\t获取 %s 的成分股数据完成..." % code)
+
+def main():
+    for item in index_list:
+        index_member(item.get("code"), item.get("date"))
+    print("任务完成！！！")
+
+
+main()
+```
+
+获取到的数据直接扔到 `/data/indexes` 目录下即可

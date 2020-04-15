@@ -7,7 +7,6 @@
 """
 import sys
 import zlib
-import asyncore
 import binascii
 import struct
 
@@ -64,9 +63,9 @@ class TdxProxy(TCPClient):
         print("开始连接...")
         self.send(request.gen_device_node().generate())
         self.send(request.gen_market_init().generate())
+        self.send(request.gen_notice().generate())
         self.send(request.gen_market_stock_count(0).generate())
         self.send(request.gen_market_stock_count(1).generate())
-        self.send(request.gen_notice().generate())
 
     def handle_read(self):
         super(TdxProxy, self).handle_read()
@@ -120,11 +119,3 @@ class TdxProxy(TCPClient):
                 sys.exit()
             except Exception as ex:
                 print("发生未知错误: %s" % str(ex))
-
-
-if __name__ == "__main__":
-    c1 = TdxProxy()
-    c1.connect("121.14.110.200", 443)
-
-    print("**********************start ioloop******************")
-    asyncore.loop()
