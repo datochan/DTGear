@@ -142,3 +142,100 @@ main()
 ```
 
 获取到的数据直接扔到 `/data/indexes` 目录下即可
+
+2. 股票ST标识的获取及更新方法
+
+默认情况下, 只要将 `/update_all.sh` 文件添加到定时任务中, 每次更新日线数据时会自动更新ST标记;由于我程序是放在家用的小服务器中，经常遇到停电断网导致ST标记缺失。需要补齐ST标记， 这里分享[优矿](https://uqer.datayes.com/)更新ST标识的脚本:
+
+``` python
+"""
+增量获取历年来的股票ST标志信息
+"""
+import time
+import datetime
+import pandas as pd
+
+filename = "st.csv"
+
+def str_to_datetime(_date):
+    """将字符串转换成datetime类型"""
+    try:
+        return datetime.datetime.strptime(str(_date), "%Y-%m-%d")
+    except Exception as ex:
+        print("----->%s" % str(ex))
+
+
+def datetime_to_str(date):
+    """将datetime类型转换为日期型字符串,格式为2008-08-02"""
+    return str(date)[0:10]
+
+
+def next_day(date):
+    """
+    获取某个日期的下一日
+    :param date: str xxxx-xx-xx 格式
+    :return:
+    """
+    if len(date) <= 0:
+        return u""
+    
+    current = str_to_datetime(date)
+    delta = datetime.timedelta(days=1)
+    target = current + delta
+    return datetime_to_str(target)
+
+
+def last_date(filename):
+    """
+    获取上次抓取ST股的日期
+    没找到返回空字符串
+    """
+    try:
+        idx_df = pd.read_csv(filename)
+        item_last = idx_df.loc[idx_df.index[-1]]
+        return str(item_last["tradeDate"])
+    except Exception, ex:
+        return u""
+
+
+def main():
+    print("开始更新股票的ST状态信息:")
+    while True:
+        try:
+            _append = True
+            start = next_day(last_date(filename))
+            if len(start) <= 0:
+                start = "1998-01-01"
+                _append = False
+
+            now_time = datetime.datetime.now()
+            end_time = str_to_datetime(start)
+            if end_time > now_time:
+                raise Exception("当前ST信息已是最新, 无需更新.")
+
+            end_time += datetime.timedelta(days=6*30)
+            if now_time > end_time:
+                end = end_time.strftime("%Y-%m-%d")
+            else:
+                end = now_time.strftime("%Y-%m-%d")
+
+            print("\t开始更新 %s 至 %s 之间的ST信息" % (start, end))
+
+            df = DataAPI.SecSTGet(beginDate=start.replace('-', ''),endDate=end.replace('-', ''),secID=u"",ticker=u"",field=["tradeDate", "ticker", "exchangeCD", "tradeAbbrName", "STflg"], pandas="1")
+
+            df = df.sort_values(['tradeDate'], ascending=1)
+            if _append:
+                df.to_csv(filename, index=False, header=False, mode='a+',encoding='utf8')
+            else:
+                df.to_csv(filename, index=False, mode="w", encoding='utf8')
+
+        except Exception as ex:
+                print("\t更新 股票的ST状态信息 失败, 详细错误信息: %s" % str(ex))
+                break
+
+    print("股票的ST状态已更新完毕!")
+
+main()
+```
+
+更新完成后, 下载替换 `/data/st.csv` 即可!

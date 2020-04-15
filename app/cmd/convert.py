@@ -141,11 +141,16 @@ def st():
     db_client = MongoDBClient(config.get("db").get("mongodb"), config.get("db").get("database"))
 
     st_df = pd.read_csv(config.get("files").get("st"), header=0)
-    st_df['code'] = st_df['code'].map(lambda x: str(x).zfill(6))
+    st_df['ticker'] = st_df['ticker'].map(lambda x: str(x).zfill(6))
 
     for index, row in st_df.iterrows():
-        db_client.upsert_one(_filter={"code": str(row["code"]), "market": row["market"], "date": str(row["date"])},
-                             _value={"st": 1, "name": "%s"%row['name']}, _upsert=False)
+        _date = str(row["tradeDate"]).replace('-', '')
+        _market = 0
+        if str(row["exchangeCD"]) == "XSHG":
+            _market = 1
+
+        db_client.upsert_one(_filter={"code": str(row["ticker"]), "market": _market, "date": _date},
+                             _value={"st": 1, "name": "%s"%row['tradeAbbrName']}, _upsert=False)
         print("更新记录: %d" % index)
 
 @convert.command(help="转换 PE、PB、ROE 指标")
