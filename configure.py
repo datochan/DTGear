@@ -56,10 +56,9 @@ config = {
         "cw_server": {
             # 财务数据
             # calc.tdx.com.cn, calc2.tdx.com.cn
-            "host": "120.76.152.87",   # 101.132.147.181
+            "host": "120.76.152.87",
             "port": 7709
         },
-
     },
     "db": {
         "mongodb": "mongodb://dtgear:a11111111@127.0.0.1:27017/",
