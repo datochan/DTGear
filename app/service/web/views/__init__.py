@@ -70,3 +70,4 @@ def pb_json():
     return json.dumps(data)
 
 from . import indexes
+from . import stocks

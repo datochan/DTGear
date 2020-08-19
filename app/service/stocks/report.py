@@ -6,7 +6,7 @@ from configure import config
 REPORT_PUBLISH_BUFFER = pd.DataFrame()
 
 def report_with_plan(_date:int, _str_code=None):
-    """根据财报的标准时间后去财报信息"""
+    """根据财报的标准时间获取财报信息"""
     global REPORT_PUBLISH_BUFFER
 
     if len(REPORT_PUBLISH_BUFFER) <= 0:
@@ -22,7 +22,7 @@ def report_with_plan(_date:int, _str_code=None):
 
 def report_with_act(_date:int, _str_code=None):
     """
-    实际当前的实际日期获取财报信息
+    取指定日期中实际最近的一次财报信息
     :param _date:
     :param _str_code:
     :return:
@@ -30,66 +30,80 @@ def report_with_act(_date:int, _str_code=None):
     report_date = date.report_date_with(_date)
     _item = report_with_plan(report_date, _str_code)
 
-    # 判断当前日期是否大于披露时间，否则取用上一个财报信息
+    if _item is not None and _item['publish'] <= _date:
+        # 判断当前日期是否大于披露时间
+        return _item
+
+    # 财报还未披露，只能取再上一次的财报信息
+    report_date = date.prev_report_date_with(report_date)
+    _item = report_with_plan(report_date, _str_code)
     if _item is not None and _item['publish'] <= _date:
         return _item
 
+    # 上一次的财报还未披露(例如一季报没出来，年报也未出), 则取再上一次的财报信息
     report_date = date.prev_report_date_with(report_date)
-    if report_date is None:
-        # 已经是第一份财报了
-        return None
+    _item = report_with_plan(report_date, _str_code)
+    if _item is not None and _item['publish'] <= _date:
+        return _item
 
-    return report_with_plan(int(report_date), _str_code)
+    # 再上一次没有财报或者没有披露，则当作没有财报数据了
+    return None
 
 
 def pb_with(_date, _stock, _price):
     """
     获取某只股票某个时段的PB值
-    :param _date:
-    :param _stock:
+    以当时日期最新的年报计算
+    :param int _date:
+    :param str _stock:
     :param _price:
     :return:
     """
-    _item = report_with_act(_date, _stock)
-    if _item is None or _item['bps'] == 0:
-        return 0.0
+    # 取最近一次财报，看总股本
+    _cur_item = report_with_act(_date, _stock)
+    if _cur_item is None or _cur_item['tcs'] == 0.0:
+        # 最近三期都没有财报，说明股票财报数据无效，Pb未0
+        return 0
 
-    return _price / _item['bps']
+    return _price / _cur_item['bps']
 
 
 def lyr_with(_date, _stock, _price):
     """
     获取某只股票某个时段的静态市盈率
+    也就是以当时日期最新的年报数据计算
     :param _date:
     :param _stock:
     :param _price:
     :return:
     """
-    _today = date.str_to_datetime(str(_date))
-    _cur_item = report_with_act(_date, _stock)
-    if _cur_item is None or _cur_item['tcs'] == 0.0:
-        # 刚上市还没公布最新财报或者没有股本信息
-        return 0.0
+    (_year, _quarter) = date.quarter(_date)
 
-    _year_report = report_with_plan(int("%d1231" % (_today.year-1)), _stock)
-
+    _year_report = report_with_plan(int("%d1231" % (_year-1)), _stock)
     if _year_report is None or _year_report["publish"] > _date:
         # 去年的年报还没披露, 取前年的
-        _year_report = report_with_plan(int("%d1231" % (_today.year-2)), _stock)
-        # 前年还没上市，也没财报信息
+        _year_report = report_with_plan(int("%d1231" % (_year-2)), _stock)
         if _year_report is None:
+            # 前年还没上市，也没财报信息，PE无效
             return 0.0
 
     if _year_report['eps'] == 0.0 or _year_report['tcs'] == 0.0:
-        # 前年还没上市，也没足够的财报信息
+        # 没有有效数据，pe没有参考意义
         return 0.0
 
-    # 用年报的每股收益* 因股本变动导致的稀释
+    # 取最近一次财报，看总股本
+    _cur_item = report_with_act(_date, _stock)
+    if _cur_item is None or _cur_item['tcs'] == 0.0:
+        # 最近三期都没有财报，说明股本不会有什么变化，直接用上面年报的eps即可
+        return _price / _year_report['eps']
+
+    # 因股本变动会导致eps被稀释
     lyr_eps = _year_report['eps'] * (_year_report['tcs']/_cur_item['tcs'])
     return 0.0 if lyr_eps == 0 else _price / lyr_eps
 
 
-def pe_ttm_with(_date, _stock, _price):
+
+def ttm_with(_date, _stock, _price):
     """
     获取指定日志的滚动市盈率(从2003年开始计算)
     :param _date:
@@ -99,20 +113,21 @@ def pe_ttm_with(_date, _stock, _price):
     """
     _today = date.str_to_datetime(str(_date))
     if _today.year <= 2002 or (_today.year == 2003 and _today.month < 4):
-        # 2002年以前没有四季宝，只算静态市盈率
+        # 2002年以前没有四季报，以静态市盈率代替
         return lyr_with(_date, _stock, _price)
 
     _cur_item = report_with_act(_date, _stock)
     if _cur_item is None or _cur_item['tcs'] == 0.0:
+        # 最近三期都没有财报信息，说明pe无参考意义
         return 0.0
 
     (__year, _report_quarter) = date.quarter(int(_cur_item['date']))
     if _report_quarter == 3:
-        # 刚公布了年报,直接以年报计算
+        # 取到的财报所属季度是四季度的年报，则可以直接以年报计算
         return _price / _cur_item['eps']
 
     if _report_quarter == 2:
-        # 当前是三季报, 还需要 上一年年报 - 上一年三季报 + 当前的三季报
+        # 取到的财报是三季报, 还需要 上一年年报 - 上一年三季报 + 当前的三季报
         _year_report = report_with_plan(int("%d1231" % (__year-1)), _stock)
         _q3_report = report_with_plan(int("%d0930" % (__year-1)), _stock)
         if _year_report is None or _q3_report is None:
@@ -148,6 +163,6 @@ def pe_ttm_with(_date, _stock, _price):
 
 
 if __name__ == "__main__":
-    item = pe_ttm_with(20181114, "300104", 3.61)
+    item = ttm_with(20190424, "002027", 7.03)
     # item = pb_with(20181109, "601318", 64.62)
     print(item)

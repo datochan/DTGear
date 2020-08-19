@@ -13,13 +13,14 @@ PROJECT_ROOT = os.path.abspath(os.path.dirname(__file__))
 
 config = {
     "indexes": [
-        # '上证50', '沪深300', '中证500', '中证1000', '上证红利', '中证红利'，'中小板指', '创业扳指'
-        # '食品饮料'
-        [1, "000015", 20050104], [1, "000016", 20040102], [1, "000300", 20050408], [1, "000905", 20070115],
-        # [1, "000807", 20120217],
-        [1, "000808", 20120217],[1, "000852", 20141017],
-        # [1, "000922", 20041231],
-        [0, "399005", 20061227], [0, "399006", 20100601]
+        # '上证50', '沪深300', '中证500', '中证1000'
+        [1, "000015", 20050104],
+        [1, "000016", 20040102],
+        [1, "000300", 20050408],
+        [1, "000852", 20141017],
+        [1, "000905", 20070115],
+        [0, "399005", 20061227], 
+        [0, "399006", 20100601]
     ],
     "logger": {
         "level": logging.DEBUG,
@@ -27,8 +28,7 @@ config = {
         "filename": "dtgear-%s.log" % str(datetime.now())[:10]
     },
     "urls": {
-        "stock_fin": "http://down.tdx.com.cn:8001/fin",
-        "fin_list_file": "gpcw.txt",  # 财务数据文件列表
+        "fin_list_prex": "tdxfin",  # 财务数据文件列表
 
         'china_bond_list': 'http://yield.chinabond.com.cn/cbweb-pbc-web/pbc/historyQuery?startDate=%s&endDate=%s'
                            '&gjqx=0&qxId=hzsylqx&locale=cn_ZH',
@@ -50,18 +50,23 @@ config = {
         'plots': "%s/data/plots/%s/%d-%s.csv",  # 策略执行结果的保存 粗略方法名/市场-代码.csv
     },
     "tdx": {
-        "server1": {
-            "host": "121.14.110.200",
-            "port": 443
+        "hq_server": {
+            # "host": "121.14.110.200",
+            # "port": 443
+            # # 金融终端V7.43
+            "host": "119.147.171.206",
+            "port": 80
         },
-        "server2": {
-            "host": "121.14.110.200",
-            "port": 443
+        "cw_server": {
+            # 财务数据
+            # calc.tdx.com.cn, calc2.tdx.com.cn
+            "host": "120.76.152.87",   # 101.132.147.181
+            "port": 7709
         },
 
     },
     "db": {
-        "mongodb": "mongodb://DTGear:a11111111@192.168.1.1:27017/",
+        "mongodb": "mongodb://dtgear:a11111111@127.0.0.1:27017/",
         "database": "DTGear"
     }
 }

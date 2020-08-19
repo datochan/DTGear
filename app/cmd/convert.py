@@ -67,6 +67,24 @@ def report():
     click.echo("股票财报数据转换完毕...")
 
 
+@convert.command(help="更新ST信息")
+def st():
+    db_client = MongoDBClient(config.get("db").get("mongodb"), config.get("db").get("database"))
+
+    st_df = pd.read_csv(config.get("files").get("st"), header=0)
+    st_df['ticker'] = st_df['ticker'].map(lambda x: str(x).zfill(6))
+
+    for index, row in st_df.iterrows():
+        _date = str(row["tradeDate"]).replace('-', '')
+        _market = 0
+        if str(row["exchangeCD"]) == "XSHG":
+            _market = 1
+
+        db_client.upsert_one(_filter={"code": str(row["ticker"]), "market": _market, "date": _date},
+                             _value={"st": 1, "name": "%s"%row['tradeAbbrName']}, _upsert=False)
+        print("更新记录: %d" % index)
+
+
 @convert.command(help="计算后复权价")
 def fixed():
     db_client = MongoDBClient(config.get("db").get("mongodb"), config.get("db").get("database"))
@@ -155,11 +173,12 @@ def pe_pb_roe():
         try:
             print("计算 %d-%s 的PE、PB、ROE数据..." % (row["market"], row["code"]))
 
-            stock_day_list = db_client.find_stock_list(_filter={"code": row['code'], "market": row["market"]},
+            stock_day_list = db_client.find_stock_list(_filter={"code": row['code'], "market": row["market"],
+                                                                "close": {"$exists": True}},
                                                        _sort=[("date", pymongo.ASCENDING)],
                                                        _fields={"date":1, "close":1})
             if len(stock_day_list) <= 0:
-                # 股票本身没有交易量无需复权
+                # 股票本身没有交易量
                 continue
 
             stock_day_df = pd.DataFrame(stock_day_list, columns=['date', 'close'])
@@ -169,13 +188,13 @@ def pe_pb_roe():
                                                   _sort=[("date", pymongo.DESCENDING)])
 
             if item_last is not None and len(item_last) > 0:
-                # 如果之前计算过后复权价，则无需重头计算
+                # 如果之前计算过，则无需重头计算
                 last_day_df = stock_day_df[stock_day_df["date"] == item_last['date']]
                 stock_day_df = stock_day_df[stock_day_df.index > last_day_df.index.values[0]]
 
             for idx, item in stock_day_df.iterrows():
                 lyr_value = rt.lyr_with(int(item["date"]), row['code'], item["close"])
-                pe_value = rt.pe_ttm_with(int(item["date"]), row['code'], item["close"])
+                pe_value = rt.ttm_with(int(item["date"]), row['code'], item["close"])
                 pb_value = rt.pb_with(int(item["date"]), row['code'], item["close"])
                 roe_value = 0.0
                 if pe_value != 0.0:
@@ -210,7 +229,8 @@ def mv():
             ccs = 0  # 流通股
             tcs = 0  # 总股本
 
-            stock_day_list = db_client.find_stock_list(_filter={"code": row['code'], "market": row["market"]},
+            stock_day_list = db_client.find_stock_list(_filter={"code": row['code'], "market": row["market"],
+                                                                "close": {"$exists": True}},
                                                        _sort=[("date", pymongo.ASCENDING)],
                                                        _fields={"date":1, "close":1})
             if len(stock_day_list) <= 0:
@@ -225,7 +245,7 @@ def mv():
                                                       _sort=[("date", pymongo.DESCENDING)])
 
                 if item_last is not None and len(item_last) > 0:
-                    # 如果之前计算过后复权价，则无需重头计算
+                    # 如果之前计算过，则无需重头计算
                     last_day_df = stock_day_df[stock_day_df["date"] == item_last['date']]
                     stock_day_df = stock_day_df[stock_day_df.index > last_day_df.index.values[0]]
 
@@ -233,7 +253,6 @@ def mv():
                     tcs = item_last["tmv"] // item_last["close"]  # 总股本
 
             except FileNotFoundError as ex:
-                # 如果从来没计算过后复权价则不管
                 pass
 
             filter_bonus_df = bonus_df[(bonus_df["code"] == row["code"]) & (bonus_df["type"] != 6) &

@@ -8,9 +8,10 @@ import pandas as pd
 from pyquery import PyQuery as pq
 
 from app import models
-from app.comm.utils import netbase, crypto
+from app.comm.utils import netbase
 from app.service import thsi
-from app.service.tdx import TdxClient
+from app.service.tdx import TdxClient, request
+from app.service.tdx.report import TdxReportClient
 from configure import *
 
 
@@ -29,7 +30,7 @@ def basics():
         c1.proxy.send(next(c1.data_gen))
 
     c1 = TdxClient(callback=__update)
-    c1.connect(config.get("tdx").get("server1").get("host"), config.get("tdx").get("server1").get("port"))
+    c1.connect(config.get("tdx").get("hq_server").get("host"), config.get("tdx").get("hq_server").get("port"))
 
     asyncore.loop(timeout=10.0)
 
@@ -47,7 +48,7 @@ def days():
     db_client = models.MongoDBClient(config.get("db").get("mongodb"), config.get("db").get("database"))
 
     c1 = TdxClient(db_client=db_client, callback=__update)
-    c1.connect(config.get("tdx").get("server1").get("host"), config.get("tdx").get("server1").get("port"))
+    c1.connect(config.get("tdx").get("hq_server").get("host"), config.get("tdx").get("hq_server").get("port"))
 
     asyncore.loop(timeout=10.0)  # 数据更新结束后会自动退出
 
@@ -58,56 +59,23 @@ def index():
     pass
 
 
-@update.command(help="更新ST信息")
-def st():
-    db_client = models.MongoDBClient(config.get("db").get("mongodb"), config.get("db").get("database"))
-
-    st_df = pd.read_csv(config.get("files").get("st"), header=0)
-    st_df['code'] = st_df['code'].map(lambda x: str(x).zfill(6))
-
-    for index, row in st_df.iterrows():
-        db_client.upsert_one(_filter={"code": str(row["code"]), "market": row["market"], "date": str(row["date"])},
-                             _value={"st": 1, "name": "%s"%row['name']}, _upsert=False)
-        print("更新记录: %d" % index)
-
-
 @update.command(help="更新股票财报信息")
 def report():
     """更新基础财务信息"""
     # 获取所有财务数据的文件列表
     click.echo("开始更新基础财务信息...")
-    data_list_url = "%s/%s" % (config.get("urls").get("stock_fin"), config.get("urls").get("fin_list_file"))
-    http_client = netbase.HttpClient(data_list_url)
-    content = http_client.value().decode("utf-8")
-    cw_list = content.split('\n')
 
-    # 过滤出所有需要下载更新的文件
-    none_total = 0
+    def __update():
+        req = request.gen_report_download("")
+        c1.add_handler(req.event_id, c1.on_download)
+        c1.data_gen = c1.download_report(config.get("urls").get("fin_list_prex"),
+                                         config.get("files").get("report_item"), PROJECT_ROOT)
+        c1.send(next(c1.data_gen))
 
-    for idx in range(len(cw_list), 0, -1):
-        # 按时间倒叙
-        item = cw_list[idx-1]
-        if len(item) <= 5:
-            none_total += 1
-            continue
-        file_name = item.split(',')[0]
-        file_hash = item.split(',')[1]
-        file_name = file_name.split('.')[0]
-        file_path = config.get("files").get("report_item") % (PROJECT_ROOT, file_name)
-        hash_result = crypto.md5sum(file_path)
-        click.echo("更新财报文件 %s ... " % file_name, nl=False)
-        if file_hash != hash_result:
-            # 如果文件已更新则删除本地文件重新下载
-            if os.path.isfile(file_path):
-                os.remove(file_path)
+    c1 = TdxReportClient(callback=__update)
+    c1.connect(config.get("tdx").get("cw_server").get("host"), config.get("tdx").get("cw_server").get("port"))
 
-            # 下载文件
-            data_client = netbase.HttpClient("%s/%s.zip" % (config.get("urls").get("stock_fin"), file_name))
-            with open(file_path, 'wb') as outfile:
-                outfile.write(data_client.value())
-            click.echo("  更新完毕!")
-        else:
-            click.echo("  无变化, 不需要更新!")
+    asyncore.loop(timeout=10.0)
 
     click.echo("所有基础财务数据更新完毕!")
 
