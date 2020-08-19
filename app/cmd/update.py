@@ -80,7 +80,7 @@ def report():
     click.echo("所有基础财务数据更新完毕!")
 
 
-@update.command(help="更新股票财报信息")
+@update.command(help="更新财报披露时间")
 @click.option('--all', type=click.BOOL, default=False, help='是否更新全量数据, 默认只更新当前季度')
 def rt(all):
     """
