@@ -113,7 +113,7 @@ def gen_device_node(main_version=7.43, core_version=5.92):
     """
     req = RequestHQNode()
     req.event_id = 0x0B
-    req.cmd_id   = 0x007B
+    req.cmd_id = 0x007B
 
     mac_addr = bytes(strings.random_mac_address(), "ascii")
     content = struct.pack("<110s2L2fL47s12s89s", b"\0" * 110, 0x01040000, 0, main_version, core_version, 0,
@@ -130,7 +130,7 @@ def gen_market_init():
     """
     req = RequestHQNode()
     req.event_id = 0x000D
-    req.cmd_id   = 0x0094
+    req.cmd_id = 0x0094
     req.is_compress = 1
     req.raw_data = b"\01"
 
@@ -144,7 +144,7 @@ def gen_notice():
     """
     req = RequestHQNode()
     req.event_id = 0x0FDB
-    req.cmd_id   = 0x0099
+    req.cmd_id = 0x0099
     req.is_compress = 1
     req.raw_data = struct.pack("30s", binascii.a2b_hex(b"7464786C6576656C320000AE47E940040000000000000000000000000003"))
     return req
@@ -192,7 +192,7 @@ def gen_stock_base(market, offset):
     return req
 
 
-def gen_stock_bonus(stocks:bytes, idx):
+def gen_stock_bonus(stocks: bytes, idx):
     """
     请求股票高送转信息
     :param stocks: 7byte: market&code[...]
@@ -213,7 +213,7 @@ def gen_stock_bonus(stocks:bytes, idx):
     return req
 
 
-def gen_stock_days(market, code, start:int, end:int, idx):
+def gen_stock_days(market, code, start: int, end: int, idx):
     """
     请求日线数据
     :param market:
@@ -247,7 +247,7 @@ def gen_report_download(filename, offset=0):
     """
     req = RequestNode()
     req.event_id = 0x06B9
-    req.cmd_id   = 0
+    req.cmd_id = 0
     req.is_compress = 0
     req.raw_data = b"\01"
     idx = offset

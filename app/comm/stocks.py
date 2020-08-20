@@ -1,13 +1,14 @@
 """
 
 """
-import pandas as pd
-
 from struct import *
 from zipfile import ZipFile
 
-from configure import *
+import pandas as pd
+
 from app.comm import file_list_in_path
+from configure import *
+
 
 # 深交所股票代码规则
 # 新证券代码编码规则升位后的证券代码采用6位数字编码，编码规则定义如下：顺序编码区：6位代码中的第3位到第6位，取值范围为0001-9999。
@@ -46,18 +47,18 @@ from app.comm import file_list_in_path
 # 30xxxx  创业板
 # 399xxx  指数
 
-def market_with_code(code:str):
+def market_with_code(code: str):
     """
     :param str code: 六位数的股票代码
     :return: 0 深交所, 1 上交所
     """
     if code.startswith("00") or code.startswith("30") or code.startswith("399") or \
-        code.startswith("15") or code.startswith("16"):
+            code.startswith("15") or code.startswith("16"):
         return 0
     return 1
 
 
-def type_with_code(code:str):
+def type_with_code(code: str):
     """
     :param str code: 六位数的股票代码
     :return: 0 未知 1 指数, 2基金  3股票
@@ -79,6 +80,8 @@ def type_with_code(code:str):
 
 
 REPORT_PUBLISH_BUFFER = {}  # 股市财报披露数据的全局缓存
+
+
 def report_publish_time(_date, code):
     """
     获取某一季度中, 某只股票财报信息的实际披露时间
@@ -90,7 +93,8 @@ def report_publish_time(_date, code):
     try:
         _result_df = REPORT_PUBLISH_BUFFER.get(_date, None)
         if _result_df is None or len(_result_df) <= 0:
-            REPORT_PUBLISH_BUFFER[_date] = pd.read_csv(config.get("files").get("rt_item") % (PROJECT_ROOT, _date), header=0)
+            REPORT_PUBLISH_BUFFER[_date] = pd.read_csv(config.get("files").get("rt_item") % (PROJECT_ROOT, _date),
+                                                       header=0)
             REPORT_PUBLISH_BUFFER[_date]['code'] = REPORT_PUBLISH_BUFFER[_date]['code'].map(lambda x: str(x).zfill(6))
             REPORT_PUBLISH_BUFFER[_date] = REPORT_PUBLISH_BUFFER[_date].fillna(0)
 
@@ -102,10 +106,13 @@ def report_publish_time(_date, code):
         if len(filter_df) <= 0:
             return _date
 
-        if filter_df.values[0][3] != '0': return filter_df.values[0][3]
-        if filter_df.values[0][2] != '0': return filter_df.values[0][2]
-        if filter_df.values[0][1] != '0': return filter_df.values[0][1]
-    except FileNotFoundError as ex:
+        if filter_df.values[0][3] != '0':
+            return filter_df.values[0][3]
+        if filter_df.values[0][2] != '0':
+            return filter_df.values[0][2]
+        if filter_df.values[0][1] != '0':
+            return filter_df.values[0][1]
+    except FileNotFoundError:
         pass
 
     return _date
@@ -151,7 +158,7 @@ def funds_a_list():
         filter_df = base_df[((base_df['code'].str.startswith("15")) & (base_df['market'] == 0)) |
                             ((base_df['code'].str.startswith("16")) & (base_df['market'] == 0)) |
                             ((base_df['code'].str.startswith("50")) & (base_df['market'] == 1)) |
-                            ((base_df['code'].str.startswith("51")) & (base_df['market'] == 1)) ]
+                            ((base_df['code'].str.startswith("51")) & (base_df['market'] == 1))]
 
         filter_df = filter_df.sort_index(ascending=False)
         return filter_df
@@ -175,7 +182,7 @@ def all_list_except_bond():
                             ((base_df['code'].str.startswith("15")) & (base_df['market'] == 0)) |
                             ((base_df['code'].str.startswith("16")) & (base_df['market'] == 0)) |
                             ((base_df['code'].str.startswith("50")) & (base_df['market'] == 1)) |
-                            ((base_df['code'].str.startswith("51")) & (base_df['market'] == 1)) ]
+                            ((base_df['code'].str.startswith("51")) & (base_df['market'] == 1))]
 
         filter_df = filter_df.sort_index(ascending=True)
         return filter_df
@@ -351,7 +358,7 @@ def report_list(code=None, _date=None):
     | 264.十大流通股东中持有A股合计(股) [注：季度报告中，若股东同时持有非流通A股性质的股份(如同时持有流通A股和流通B股）,
       指标264取的是包含同时持有非流通A股性质的流通股数] |
     """
-    all_date_list = []   # 所有财报日期
+    all_date_list = []  # 所有财报日期
     file_list = file_list_in_path("%s/data/reports/" % PROJECT_ROOT)
 
     headers = ['date', 'code']

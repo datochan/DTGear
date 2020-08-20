@@ -1,16 +1,16 @@
 import time
+
 import pandas as pd
 import pymongo
 
-from configure import PROJECT_ROOT, config
-
 from app.comm.utils import number
+from configure import PROJECT_ROOT, config
 
 CUR_IDX_CODE = ""
 INDEX_MEMBER_DF = pd.DataFrame()
 
 
-def index_val(_date:int, _idx_code:str, _mongo_client=None):
+def index_val(_date: int, _idx_code: str, _mongo_client=None):
     """
     计算市场及指数在某一天的估值信息
     :param int _date: 某一天
@@ -22,9 +22,9 @@ def index_val(_date:int, _idx_code:str, _mongo_client=None):
     global INDEX_MEMBER_DF
     # 有复权价代表是股票
     stock_day_list = _mongo_client.find_stock_list(_filter={"date": str(_date), "fixed": {"$exists": True}},
-                                               _sort=[("code", pymongo.ASCENDING)],
-                                               _fields={"market": 1, "code": 1, "close": 1,
-                                                        "pe_ttm": 1, "pb": 1, "roe": 1, "dr": 1})
+                                                   _sort=[("code", pymongo.ASCENDING)],
+                                                   _fields={"market": 1, "code": 1, "close": 1,
+                                                            "pe_ttm": 1, "pb": 1, "roe": 1, "dr": 1})
 
     if CUR_IDX_CODE != _idx_code:
         # 如果不是同一个指数，则清空缓存重新处理

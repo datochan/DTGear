@@ -8,18 +8,20 @@ from urllib.error import URLError
 from urllib.request import urlopen, Request
 
 import ssl
+
 ssl._create_default_https_context = ssl._create_unverified_context
 
 from app.comm.utils import bytes
 
 RECV_BUFFER_SIZE = 65535
 
+
 class TCPClient(asyncore.dispatcher_with_send):
     def __init__(self, idle_sec=10, interval_sec=5, max_fails=3):
         asyncore.dispatcher_with_send.__init__(self)
         # self.debug = True
         self.in_buffer = bytes.Buffer()
-        self.__map_handler = {}         # 注册的处理器
+        self.__map_handler = {}  # 注册的处理器
         self.create_socket(socket.AF_INET, socket.SOCK_STREAM)
         if platform.system() == "Linux":
             self.__keepalive_linux(idle_sec, interval_sec, max_fails)
@@ -140,9 +142,9 @@ def http_request(url=None, ref=None, cookie=None, auth=None, data=None, retry_co
     :param ref:
     :param cookie:
     :param auth:
+    :param data:
     :param retry_count: 重试多少次
     :param retry_time: 每次重试的时间间隔
-    :return:
     """
     idx = 0
     retry = True

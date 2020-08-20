@@ -1,5 +1,6 @@
 from app.comm.lib.extensions import mongo
 
+
 class StockModel:
     __stock = None
 

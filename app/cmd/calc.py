@@ -14,6 +14,7 @@ def calc():
     """更新类功能集合"""
     pass
 
+
 @calc.command(help="计算整个A股的估值信息")
 def a():
     """计算A股PE中值"""
@@ -21,7 +22,6 @@ def a():
     first = True
     result_list = []
     db_client = MongoDBClient(config.get("db").get("mongodb"), config.get("db").get("database"))
-
 
     calendar_df = pd.read_csv(config.get("files").get("calendar"), header=0)
     today = int("".join(time.strftime('%Y%m%d', time.localtime(time.time()))))
@@ -75,11 +75,11 @@ def a():
 
                 result_df = pd.DataFrame(result_list, columns=['date', 'pe', 'pb', 'roe', 'dr'])
                 result_df.to_csv(config.get("files").get("stock_a"), index=False,
-                                        mode="w", header=True, encoding='utf8', float_format="%.6f")
+                                 mode="w", header=True, encoding='utf8', float_format="%.6f")
             else:
                 result_df = pd.DataFrame(result_list, columns=['date', 'pe', 'pb', 'roe', 'dr'])
                 result_df.to_csv(config.get("files").get("stock_a"), index=False,
-                                        mode="a+", header=False, encoding='utf8', float_format="%.6f")
+                                 mode="a+", header=False, encoding='utf8', float_format="%.6f")
 
             result_list = []
 

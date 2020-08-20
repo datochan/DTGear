@@ -40,6 +40,7 @@ def basics():
 @update.command(help="更新股票日线的交易数据")
 def days():
     click.echo("开始更新股票日线数据...")
+
     def __update():
         # 当前交易日时，交易未结束则更新到昨天，交易结束则更新到今天。
         c1.data_gen = c1.update_history()
@@ -82,18 +83,18 @@ def report():
 
 @update.command(help="更新财报披露时间")
 @click.option('--all', type=click.BOOL, default=False, help='是否更新全量数据, 默认只更新当前季度')
-def rt(all):
+def rt(is_all):
     """
     年报: xxxx-12-31 至 xxxx-04-30
     一季: xxxx-03-31 至 xxxx-04-30
     年中: xxxx-06-30 至 xxxx-08-31
     三季: xxxx-09-30 至 xxxx-10-31
-    :param all:
+    :param is_all:
     :return:
     """
     print("准备更新财报披露时间数据...")
     date = None
-    if all is False:
+    if is_all is False:
         # 如果不更新全量数据则只更新今天所属季度的部分数据
         date = "".join(time.strftime('%Y%m%d', time.localtime(time.time())))
 
@@ -137,19 +138,19 @@ def bond():
             _date = tr.children("td").eq(1).text()
             _3_month = tr.children("td").eq(2).text()
             _6_month = tr.children("td").eq(3).text()
-            _1_year  = tr.children("td").eq(4).text()
-            _3_year  = tr.children("td").eq(5).text()
-            _5_year  = tr.children("td").eq(6).text()
-            _7_year  = tr.children("td").eq(7).text()
-            _10_year  = tr.children("td").eq(8).text()
-            _30_year  = tr.children("td").eq(9).text()
+            _1_year = tr.children("td").eq(4).text()
+            _3_year = tr.children("td").eq(5).text()
+            _5_year = tr.children("td").eq(6).text()
+            _7_year = tr.children("td").eq(7).text()
+            _10_year = tr.children("td").eq(8).text()
+            _30_year = tr.children("td").eq(9).text()
 
             bond_list.append([_date.replace('-', ''), _3_month, _6_month, _1_year, _3_year, _5_year,
-                                _7_year, _10_year, _30_year])
+                              _7_year, _10_year, _30_year])
 
     if len(bond_list) > 0:
         result_df = pd.DataFrame(bond_list, columns=['date', '3month', '6month', '1year', '3year', '5year',
-                                                       '7year', '10year', '30year'])
+                                                     '7year', '10year', '30year'])
 
     result_df = result_df.sort_values(['date'], ascending=1)
     result_df.to_csv(config.get("files").get("bond"), index=False, header=False, mode='a+',
@@ -175,7 +176,6 @@ def bond_all():
         html_cnt = netbase.HttpClient(config.get('urls').get('china_bond_list') % (start[idx], end[idx]))
         doc = pq(html_cnt.value().decode("utf-8"))
 
-
         is_header = True
         bond_list = []
         tr_list = doc("#gjqxData tr")
@@ -189,19 +189,19 @@ def bond_all():
                 _date = tr.children("td").eq(1).text()
                 _3_month = tr.children("td").eq(2).text()
                 _6_month = tr.children("td").eq(3).text()
-                _1_year  = tr.children("td").eq(4).text()
-                _3_year  = tr.children("td").eq(5).text()
-                _5_year  = tr.children("td").eq(6).text()
-                _7_year  = tr.children("td").eq(7).text()
-                _10_year  = tr.children("td").eq(8).text()
-                _30_year  = tr.children("td").eq(9).text()
+                _1_year = tr.children("td").eq(4).text()
+                _3_year = tr.children("td").eq(5).text()
+                _5_year = tr.children("td").eq(6).text()
+                _7_year = tr.children("td").eq(7).text()
+                _10_year = tr.children("td").eq(8).text()
+                _30_year = tr.children("td").eq(9).text()
 
                 bond_list.append([_date.replace('-', ''), _3_month, _6_month, _1_year, _3_year, _5_year,
-                                    _7_year, _10_year, _30_year])
+                                  _7_year, _10_year, _30_year])
 
         if len(bond_list) > 0:
             result_df = pd.DataFrame(bond_list, columns=['date', '3month', '6month', '1year', '3year', '5year',
-                                                           '7year', '10year', '30year'])
+                                                         '7year', '10year', '30year'])
 
             result_df = result_df.sort_values(['date'], ascending=1)
             if is_first is True:

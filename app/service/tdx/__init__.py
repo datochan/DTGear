@@ -24,7 +24,8 @@ from configure import config
 
 class TdxClient:
     """用于数据更新和抓取的客户端"""
-    __db_client:models.MongoDBClient
+    __db_client: models.MongoDBClient
+
     def __init__(self, db_client=None, callback=None):
         self.proxy = TdxProxy()
         self.__callback_proc = callback
@@ -84,7 +85,6 @@ class TdxClient:
             package = req.generate()
             yield package
 
-
     def update_bonus(self):
         """
         更新高送转数据
@@ -128,7 +128,6 @@ class TdxClient:
 
         except Exception as ex:
             print("更新股票权息数据时发生异常，错误信息为: %s" % ex)
-
 
     def update_history(self):
         """
@@ -188,8 +187,7 @@ class TdxClient:
         except Exception as ex:
             print("更新日线数据时发生未知异常，错误信息为: %s" % str(ex))
 
-
-    def on_history(self, header:ResponseHeader, body:Buffer):
+    def on_history(self, header: ResponseHeader, body: Buffer):
         """处理日线封包"""
         current_df_list = []
         is_st = 0
@@ -221,14 +219,12 @@ class TdxClient:
 
         print("获取 %d-%s 的日线数据" % (market, stock_code))
 
-
         hs_df = pd.DataFrame(current_df_list, columns=['date', 'market', 'code', 'name', 'open', 'low', 'high', 'close',
                                                        'volume', 'amount', 'st'])
 
         self.__db_client.insert_json(hs_df)
 
         self.proxy.send(next(self.data_gen))
-
 
     def on_stock_bonus(self, header:ResponseHeader, body:Buffer):
         """处理权息封包"""
@@ -266,7 +262,6 @@ class TdxClient:
             self.proxy.close()
         else:
             self.update_bonus()
-
 
     def on_base(self, header:ResponseHeader, body:Buffer):
         """更新市场股票基础信息列表"""

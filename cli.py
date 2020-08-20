@@ -6,6 +6,7 @@
     :copyright: (c) 2016-10-26 by datochan.
 """
 import os
+
 import click
 
 plugin_folder = os.path.join(os.path.join(os.path.dirname(__file__), 'app'), 'cmd')
@@ -31,7 +32,6 @@ class DatoCLI(click.MultiCommand):
 
 
 cli = DatoCLI(help='命令模块 - 数据的更新和维护')
-
 
 if __name__ == '__main__':
     cli()

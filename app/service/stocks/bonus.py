@@ -5,6 +5,7 @@ from configure import config
 
 BONUS_BUFFER = pd.DataFrame()
 
+
 def bonus_with(_code=None):
     """ 获取某只股票的高送转信息"""
     global BONUS_BUFFER
@@ -20,7 +21,7 @@ def bonus_with(_code=None):
     return BONUS_BUFFER
 
 
-def dividend_rate_with(_date:int, _code:str, _price:float):
+def dividend_rate_with(_date: int, _code: str, _price: float):
     """
     求某只股票在指定时间点的三年平均股息率
     :param _date:
@@ -38,6 +39,6 @@ def dividend_rate_with(_date:int, _code:str, _price:float):
     total_money = 0.0
     for idx, item in filter_df.iterrows():
         # 每股分红的三年之和
-        total_money += item["money"]/10
+        total_money += item["money"] / 10
 
-    return total_money / (3*_price)
+    return total_money / (3 * _price)

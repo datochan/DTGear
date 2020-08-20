@@ -9,7 +9,6 @@ import sys
 import zlib
 import binascii
 import struct
-
 from app.comm.utils.bytes import Buffer
 from app.comm.utils.netbase import TCPClient
 from app.service.tdx import request
@@ -17,6 +16,7 @@ from app.service.tdx.response import ResponseHeader, ResponseMarketInfo
 
 # 用于自定义事件
 EVENT_READY = 0x00007190
+
 
 class TdxProxy(TCPClient):
     def __init__(self, idle_sec=10, interval_sec=5, max_fails=3):
@@ -27,7 +27,7 @@ class TdxProxy(TCPClient):
         self.stock_sh_count = 0   # 沪市金融产品数量
         self.stock_sz_count = 0   # 深市金融产品数量
 
-    def on_default_handler(self, header:ResponseHeader, body:Buffer):
+    def on_default_handler(self, header: ResponseHeader, body: Buffer):
         """
         如果没有匹配处理器则由此处理
         :param header:
@@ -90,17 +90,16 @@ class TdxProxy(TCPClient):
                 H: 事件标识，靠此字段可以确定封包的类别
                 2H: 分别是封包长度, 解压所需要的空间大小
                 """
-                objHeader = ResponseHeader.parse(Buffer(header))
+                obj_header = ResponseHeader.parse(Buffer(header))
 
-                if self.in_buffer.length() < objHeader.body_length+header_size:
+                if self.in_buffer.length() < obj_header.body_length+header_size:
                     # 如果封包不足则等待下一次接收后继续再判断，直至封包完整再继续解析
                     break
 
                 self.in_buffer.read_bytes(header_size)
-                compress_data = self.in_buffer.read_bytes(objHeader.body_length)
+                compress_data = self.in_buffer.read_bytes(obj_header.body_length)
 
-
-                if objHeader.is_compress:
+                if obj_header.is_compress:
                     decompiler = zlib.decompressobj()
                     content = decompiler.decompress(compress_data)
                 else:
@@ -108,12 +107,12 @@ class TdxProxy(TCPClient):
 
                 # print("收到 content: %s." % str(binascii.b2a_hex(content)))
 
-                handle_proc = self.get_handler(objHeader.event_id)
+                handle_proc = self.get_handler(obj_header.event_id)
 
                 if handle_proc is None:
-                    self.get_handler(0)(header=objHeader, body=Buffer(content))
+                    self.get_handler(0)(header=obj_header, body=Buffer(content))
                 else:
-                    handle_proc(header=objHeader, body=Buffer(content))
+                    handle_proc(header=obj_header, body=Buffer(content))
 
             except StopIteration:
                 sys.exit()

@@ -17,4 +17,5 @@ class Const(object):
         else:
             return None
 
+
 sys.modules[__name__] = Const()

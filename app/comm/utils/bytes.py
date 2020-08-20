@@ -8,7 +8,8 @@ class Buffer:
     """
 
     """
-    def __init__(self, data:bytes=b""):
+
+    def __init__(self, data: bytes = b""):
         self.__buffer = data
 
     def length(self):
@@ -48,7 +49,7 @@ class Buffer:
 
         return None
 
-    def read_format(self, fmt:str):
+    def read_format(self, fmt: str):
         """
         按照指定格式读取指定长度内容
         :param fmt:
@@ -62,7 +63,7 @@ class Buffer:
 
         return None
 
-    def write_format(self, fmt:str, *args):
+    def write_format(self, fmt: str, *args):
         """
         todo 多参，待完成
         按照指定格式写入内容

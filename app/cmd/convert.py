@@ -14,6 +14,7 @@ def convert():
     """更新类功能集合"""
     pass
 
+
 @convert.command(help="转换股票财报数据的指标")
 def report():
     """
@@ -50,11 +51,15 @@ def report():
         for idx, row in report_df.iterrows():
             market = stocks.market_with_code(row['code'])
             act = stocks.report_publish_time(row['date'], row['code'])
-            report_list.append([row['date'], market, row['code'], row[1], row[2], row[4], row[6], row[72], row[96], row[238], row[239], act])
+            report_list.append(
+                [row['date'], market, row['code'], row[1], row[2], row[4], row[6], row[72], row[96], row[238], row[239],
+                 act])
 
         # date, market, code, 1.基本每股收益、2.扣非每股收益、4.每股净资产、6.净资产收益率(roa)、72.所有者权益（或股东权益）合计、96.归属于母公司所有者的净利润、
         # 238.总股本、239.已上市流通A股、披露时间
-        result_df = pd.DataFrame(report_list, columns=['date', 'market', 'code', 'eps', 'neps', 'bps', 'roe', 'na', 'np', 'tcs', 'ccs', "publish"])
+        result_df = pd.DataFrame(report_list,
+                                 columns=['date', 'market', 'code', 'eps', 'neps', 'bps', 'roe', 'na', 'np', 'tcs',
+                                          'ccs', "publish"])
 
         result_df = result_df.sort_values(['code'], ascending=1)
         if is_first is True:
@@ -81,7 +86,7 @@ def st():
             _market = 1
 
         db_client.upsert_one(_filter={"code": str(row["ticker"]), "market": _market, "date": _date},
-                             _value={"st": 1, "name": "%s"%row['tradeAbbrName']}, _upsert=False)
+                             _value={"st": 1, "name": "%s" % row['tradeAbbrName']}, _upsert=False)
         print("更新记录: %d" % index)
 
 
@@ -96,12 +101,12 @@ def fixed():
         try:
             prev_close = 0
             prev_fixed_close = 0
-            
+
             print("计算 %d-%s 的后复权数据" % (row["market"], row["code"]))
 
             stock_day_list = db_client.find_stock_list(_filter={"code": row['code'], "market": row["market"]},
                                                        _sort=[("date", pymongo.ASCENDING)],
-                                                       _fields={"date":1, "close":1})
+                                                       _fields={"date": 1, "close": 1})
             if len(stock_day_list) <= 0:
                 # 股票本身没有交易量无需复权
                 continue
@@ -122,7 +127,7 @@ def fixed():
 
                     stock_day_df = stock_day_df[stock_day_df.index > last_day_df.index.values[0]]
 
-            except FileNotFoundError as ex:
+            except FileNotFoundError:
                 # 如果从来没计算过后复权价则不管
                 pass
 
@@ -147,10 +152,11 @@ def fixed():
                     prev_fixed_close = item["close"]
 
                 prev_close = item["close"]
-                db_client.upsert_one(_filter={"code": str(row["code"]), "market": row["market"], "date": str(item["date"])},
-                                     _value={"fixed": prev_fixed_close})
+                db_client.upsert_one(
+                    _filter={"code": str(row["code"]), "market": row["market"], "date": str(item["date"])},
+                    _value={"fixed": prev_fixed_close})
 
-        except FileNotFoundError as ex:
+        except FileNotFoundError:
             continue
 
 
@@ -168,8 +174,9 @@ def st():
             _market = 1
 
         db_client.upsert_one(_filter={"code": str(row["ticker"]), "market": _market, "date": _date},
-                             _value={"st": 1, "name": "%s"%row['tradeAbbrName']}, _upsert=False)
+                             _value={"st": 1, "name": "%s" % row['tradeAbbrName']}, _upsert=False)
         print("更新记录: %d" % index)
+
 
 @convert.command(help="转换 PE、PB、ROE 指标")
 def pe_pb_roe():
@@ -193,7 +200,7 @@ def pe_pb_roe():
             stock_day_list = db_client.find_stock_list(_filter={"code": row['code'], "market": row["market"],
                                                                 "close": {"$exists": True}},
                                                        _sort=[("date", pymongo.ASCENDING)],
-                                                       _fields={"date":1, "close":1})
+                                                       _fields={"date": 1, "close": 1})
             if len(stock_day_list) <= 0:
                 # 股票本身没有交易量
                 continue
@@ -216,11 +223,12 @@ def pe_pb_roe():
                 roe_value = 0.0
                 if pe_value != 0.0:
                     roe_value = pb_value / pe_value
-                db_client.upsert_one(_filter={"code": str(row["code"]), "market": row["market"], "date": str(item["date"])},
-                                     _value={"lyr": lyr_value, "pe_ttm": pe_value, "pb": pb_value,
-                                             "roe": roe_value})
+                db_client.upsert_one(
+                    _filter={"code": str(row["code"]), "market": row["market"], "date": str(item["date"])},
+                    _value={"lyr": lyr_value, "pe_ttm": pe_value, "pb": pb_value,
+                            "roe": roe_value})
 
-        except FileNotFoundError as ex:
+        except FileNotFoundError:
             continue
 
 
@@ -249,7 +257,7 @@ def mv():
             stock_day_list = db_client.find_stock_list(_filter={"code": row['code'], "market": row["market"],
                                                                 "close": {"$exists": True}},
                                                        _sort=[("date", pymongo.ASCENDING)],
-                                                       _fields={"date":1, "close":1})
+                                                       _fields={"date": 1, "close": 1})
             if len(stock_day_list) <= 0:
                 # 股票本身没有交易量
                 continue
@@ -269,7 +277,7 @@ def mv():
                     ccs = item_last["cmv"] // item_last["close"]  # 流通股
                     tcs = item_last["tmv"] // item_last["close"]  # 总股本
 
-            except FileNotFoundError as ex:
+            except FileNotFoundError:
                 pass
 
             filter_bonus_df = bonus_df[(bonus_df["code"] == row["code"]) & (bonus_df["type"] != 6) &
@@ -283,8 +291,8 @@ def mv():
                 item_df = filter_bonus_df[filter_bonus_df["date"] == int(item["date"])]
                 if len(item_df) > 0:
                     # 高送转中记录的数据单位都到万
-                    ccs = item_df.ix[item_df.index.values[0]]["count"]*10000
-                    tcs = item_df.ix[item_df.index.values[0]]["rate"]*10000
+                    ccs = item_df.ix[item_df.index.values[0]]["count"] * 10000
+                    tcs = item_df.ix[item_df.index.values[0]]["rate"] * 10000
 
                 item_df = filter_report_df[filter_report_df["publish"] == int(item["date"])]
                 if len(item_df) > 0:
@@ -296,11 +304,11 @@ def mv():
                 # 3年的股息率
                 dr = bonus.dividend_rate_with(int(item["date"]), row["code"], item["close"])
 
-                db_client.upsert_one(_filter={"code": str(row["code"]), "market": row["market"], "date": str(item["date"])},
-                                     _value={"cmv": ccs_mv, "tmv": tcs_mv, "dr": dr})
+                db_client.upsert_one(
+                    _filter={"code": str(row["code"]), "market": row["market"], "date": str(item["date"])},
+                    _value={"cmv": ccs_mv, "tmv": tcs_mv, "dr": dr})
 
-        except FileNotFoundError as ex:
+        except FileNotFoundError:
             continue
 
     click.echo("总股本、流通股本、流通市值、总市值、股息率 计算完毕...")
-

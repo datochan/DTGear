@@ -19,11 +19,11 @@ class C10JQKASession(object):
             self.R[self.A[idx]] = idx
 
     @staticmethod
-    def checksum(n:bytearray):
+    def checksum(n: bytearray):
         t = e = 0
 
         while True:
-            if len(n) <=  e:
+            if len(n) <= e:
                 break
             t = (t << 5) - t + n[e]
             e += 1
@@ -35,24 +35,23 @@ class C10JQKASession(object):
         return rd.random() * 4294967295.0
 
     @staticmethod
-    def s(data:bytearray, idx:int, cs:int):
+    def s(data: bytearray, idx: int, cs: int):
         out = bytearray()
         count = len(data)
-        while count>idx:
+        while count > idx:
             out.append(data[idx] ^ cs & 255)
-            t1 = number.int2byte(cs*131)
-            cs = 0xff & (~t1)   # 由于python没有无符号数，所以需要自己转换
+            t1 = number.int2byte(cs * 131)
+            cs = 0xff & (~t1)  # 由于python没有无符号数，所以需要自己转换
             idx += 1
-
 
         return out
 
-    def __encode(self, o:bytearray):
+    def __encode(self, o: bytearray):
         idx = 0
         result_list = bytearray()
         while len(o) > idx:
             m1 = o[idx] << 16
-            idx+=1
+            idx += 1
 
             m2 = 0
             if len(o) > idx:
@@ -65,10 +64,10 @@ class C10JQKASession(object):
                 idx += 1
 
             m = m1 | m2 | m3
-            result_list.append(ord(self.A[m>>18]))
-            result_list.append(ord(self.A[m>>12&63]))
-            result_list.append(ord(self.A[m>>6&63]))
-            result_list.append(ord(self.A[m&63]))
+            result_list.append(ord(self.A[m >> 18]))
+            result_list.append(ord(self.A[m >> 12 & 63]))
+            result_list.append(ord(self.A[m >> 6 & 63]))
+            result_list.append(ord(self.A[m & 63]))
 
         return result_list.decode()
 
@@ -91,9 +90,9 @@ class C10JQKASession(object):
             item_field = self.basic_fields[idx]
             tmp_buffer = bytearray(item_field)
 
-            field_idx = item_field-1
+            field_idx = item_field - 1
             while item_field > 0:
-                tmp_buffer[field_idx] = item_data&255
+                tmp_buffer[field_idx] = item_data & 255
                 item_data >>= 8
                 item_field -= 1
                 field_idx -= 1
@@ -103,17 +102,17 @@ class C10JQKASession(object):
 
         return result
 
-    def update_server_time(self, time_url:str):
+    def update_server_time(self, time_url: str):
         """更新服务器时间"""
         time_stamp = int(time.time())
 
-        http_client = netbase.HttpClient(time_url % (time_stamp/1200))
+        http_client = netbase.HttpClient(time_url % (time_stamp / 1200))
         # var TOKEN_SERVER_TIME=1541343609.223;// server time
         content = http_client.value().decode("utf-8")
         content = content.split('=')[1]
-        serverTime = float(content.split(';')[0])
+        server_time = float(content.split(';')[0])
 
         _random = int(self.random())
         self.data[0] = _random
-        self.data[1] = int(serverTime)
+        self.data[1] = int(server_time)
         self.data[2] = int(time_stamp)

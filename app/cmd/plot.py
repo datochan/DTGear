@@ -17,7 +17,7 @@ def plot():
 @click.option('--years', type=click.INT, default=None, help='定投年限')
 @click.option('--money', type=click.FLOAT, default=None, help='每期定投的金额')
 def plot1(years, money):
-    tax = 0.00025   # 买卖按照万分之2.5计算
+    tax = 0.00025  # 买卖按照万分之2.5计算
 
     for item in config.get("indexes"):
         _market = item[0]
@@ -45,7 +45,7 @@ def plot1(years, money):
                 continue
 
             item_point = last_df.ix[last_df.index.values[0]]["close"]
-            item_count = _money_per * (1-tax) / item_point
+            item_count = _money_per * (1 - tax) / item_point
             total_count += item_count
             data.append([item_date, "买入", item_point, item_count, total_count])
 
@@ -72,7 +72,7 @@ def plot2(years, money):
 
     :return:
     """
-    tax = 0.00025   # 买卖按照万分之2.5计算
+    tax = 0.00025  # 买卖按照万分之2.5计算
 
     for item in config.get("indexes"):
         data = []
@@ -88,7 +88,7 @@ def plot2(years, money):
 
         _idx_list = db_client.find_stock_list(_filter={"code": _idx_code, "market": _market},
                                               _sort=[("date", pymongo.ASCENDING)],
-                                              _fields={"date":1, "pe_ttm": 1, "close": 1})
+                                              _fields={"date": 1, "pe_ttm": 1, "close": 1})
 
         item_df = pd.DataFrame(list(_idx_list), columns=["date", "pe_ttm", "close"])
         item_df = item_df.dropna(0)
@@ -97,7 +97,7 @@ def plot2(years, money):
         item_df.insert(0, 'rank', _pe_series.rank(pct=True))
         item_df = item_df.reset_index()
 
-        total_count = 0   # 累计数量
+        total_count = 0  # 累计数量
 
         for idx, item_date in enumerate(last_day_list):
             last_df = item_df[item_df["date"] == str(item_date)]
@@ -118,7 +118,7 @@ def plot2(years, money):
                 # 卖出1份
                 _op = "卖出"
                 # 卖出的这一份应该包含税费，所以要多卖出一部分税费的数量
-                item_count = _money_per * (1+tax) / item_point
+                item_count = _money_per * (1 + tax) / item_point
                 if total_count >= item_count:
                     total_count -= item_count
                 elif total_count > 0:
@@ -133,29 +133,27 @@ def plot2(years, money):
 
             elif 40 <= item_rank < 60:
                 # 买入1份
-                item_count = _money_per * (1-tax) / item_point
+                item_count = _money_per * (1 - tax) / item_point
                 total_count += item_count
                 data.append([item_date, item_rank, "买入", item_point, item_count, total_count])
 
             elif 20 <= item_rank < 40:
                 # 买入1.5份
-                item_count = (_money_per*1.5) * (1-tax) / item_point
+                item_count = (_money_per * 1.5) * (1 - tax) / item_point
                 total_count += item_count
-                data.append([item_date, item_rank , "买入", item_point, item_count, total_count])
+                data.append([item_date, item_rank, "买入", item_point, item_count, total_count])
             elif 0 <= item_rank < 20:
                 # 买入2份
-                item_count = (_money_per*2) * (1-tax) / item_point
+                item_count = (_money_per * 2) * (1 - tax) / item_point
                 total_count += item_count
                 data.append([item_date, item_rank, "买入", item_point, item_count, total_count])
             else:
                 data.append([item_date, item_rank, "/", item_point, 0, total_count])
 
-
         result_df = pd.DataFrame(data, columns=["日期", "百分位", "操作", "单价", "数量", "累计数量"])
 
         result_df.to_csv(config.get("files").get("plots") % (PROJECT_ROOT, "plot2", _market, _idx_code), index=False,
                          mode="w", header=True, encoding='gb18030', float_format="%.3f")
-
 
 
 @plot.command(help="策略3, 依据PE高度，盈余均摊到后续投入成本的策略")
@@ -172,7 +170,7 @@ def plot3(years, money):
 
     :return:
     """
-    tax = 0.00025   # 买卖按照万分之2.5计算
+    tax = 0.00025  # 买卖按照万分之2.5计算
 
     for item in config.get("indexes"):
         data = []
@@ -188,7 +186,7 @@ def plot3(years, money):
 
         _idx_list = db_client.find_stock_list(_filter={"code": _idx_code, "market": _market},
                                               _sort=[("date", pymongo.ASCENDING)],
-                                              _fields={"date":1, "pe_ttm": 1, "close": 1})
+                                              _fields={"date": 1, "pe_ttm": 1, "close": 1})
 
         item_df = pd.DataFrame(list(_idx_list), columns=["date", "pe_ttm", "close"])
         item_df = item_df.dropna(0)
@@ -197,7 +195,7 @@ def plot3(years, money):
         item_df.insert(0, 'rank', _pe_series.rank(pct=True))
         item_df = item_df.reset_index()
 
-        total_count = int(0)   # 累计数量
+        total_count = int(0)  # 累计数量
         _month_count = len(last_day_list)
 
         for idx, item_date in enumerate(last_day_list):
@@ -211,9 +209,9 @@ def plot3(years, money):
 
             if item_rank >= 80 and total_count > 0:
                 _wait_amount = item_point * total_count
-                _wait_count = (_month_count-(idx+1))
+                _wait_count = (_month_count - (idx + 1))
                 if _wait_amount != 0:
-                    _money_per += _wait_amount/(_wait_count*2)
+                    _money_per += _wait_amount / (_wait_count * 2)
 
                 item_count = total_count * item_point * (1 - tax) / item_point
                 data.append([item_date, item_rank, "卖出", -item_point, item_count, 0])
@@ -222,7 +220,7 @@ def plot3(years, money):
             elif 60 <= item_rank < 80:
                 # 卖出的这一份应该包含税费，所以要多卖出一部分税费的数量
                 _op = "卖出"
-                item_count = _money_per * (1+tax) / item_point
+                item_count = _money_per * (1 + tax) / item_point
                 if total_count >= item_count:
                     total_count -= item_count
                 elif total_count > 0:
@@ -237,28 +235,28 @@ def plot3(years, money):
 
             elif 40 <= item_rank < 60:
                 # 买入1份
-                item_count = _money_per * (1-tax) / item_point
+                item_count = _money_per * (1 - tax) / item_point
                 total_count += item_count
                 data.append([item_date, item_rank, "买入", item_point, item_count, total_count])
 
             elif 20 <= item_rank < 40:
                 # 买入1.5份
-                item_count = (_money_per*1.5) * (1-tax) / item_point
+                item_count = (_money_per * 1.5) * (1 - tax) / item_point
                 total_count += item_count
-                data.append([item_date, item_rank , "买入", item_point, item_count, total_count])
+                data.append([item_date, item_rank, "买入", item_point, item_count, total_count])
             elif 0 <= item_rank < 20:
                 # 买入2份
-                item_count = (_money_per*2) * (1-tax) / item_point
+                item_count = (_money_per * 2) * (1 - tax) / item_point
                 total_count += item_count
                 data.append([item_date, item_rank, "买入", item_point, item_count, total_count])
             else:
                 data.append([item_date, item_rank, "/", item_point, 0, total_count])
 
-
         result_df = pd.DataFrame(data, columns=["日期", "百分位", "操作", "单价", "数量", "累计数量"])
 
         result_df.to_csv(config.get("files").get("plots") % (PROJECT_ROOT, "plot3", _market, _idx_code), index=False,
                          mode="w", header=True, encoding='gb18030', float_format="%.3f")
+
 
 @plot.command(help="策略4, 依据PB高度定期不定额方式")
 @click.option('--years', type=click.INT, default=None, help='定投年限')
@@ -274,7 +272,7 @@ def plot4(years, money):
 
     :return:
     """
-    tax = 0.00025   # 买卖按照万分之2.5计算
+    tax = 0.00025  # 买卖按照万分之2.5计算
 
     for item in config.get("indexes"):
         data = []
@@ -290,7 +288,7 @@ def plot4(years, money):
 
         _idx_list = db_client.find_stock_list(_filter={"code": _idx_code, "market": _market},
                                               _sort=[("date", pymongo.ASCENDING)],
-                                              _fields={"date":1, "pb": 1, "close": 1})
+                                              _fields={"date": 1, "pb": 1, "close": 1})
 
         item_df = pd.DataFrame(list(_idx_list), columns=["date", "pb", "close"])
         item_df = item_df.dropna(0)
@@ -299,7 +297,7 @@ def plot4(years, money):
         item_df.insert(0, 'rank', _pe_series.rank(pct=True))
         item_df = item_df.reset_index()
 
-        total_count = int(0)   # 累计数量
+        total_count = int(0)  # 累计数量
 
         for idx, item_date in enumerate(last_day_list):
             last_df = item_df[item_df["date"] == str(item_date)]
@@ -318,7 +316,7 @@ def plot4(years, money):
             elif 60 <= item_rank < 80:
                 # 卖出1份
                 _op = "卖出"
-                item_count = _money_per * (1+tax) / item_point
+                item_count = _money_per * (1 + tax) / item_point
                 if total_count >= item_count:
                     total_count -= item_count
                 elif total_count > 0:
@@ -333,23 +331,22 @@ def plot4(years, money):
 
             elif 40 <= item_rank < 60:
                 # 买入1份
-                item_count = _money_per * (1-tax) / item_point
+                item_count = _money_per * (1 - tax) / item_point
                 total_count += item_count
                 data.append([item_date, item_rank, "买入", item_point, item_count, total_count])
 
             elif 20 <= item_rank < 40:
                 # 买入1.5份
-                item_count = (_money_per*1.5) * (1-tax) / item_point
+                item_count = (_money_per * 1.5) * (1 - tax) / item_point
                 total_count += item_count
-                data.append([item_date, item_rank , "买入", item_point, item_count, total_count])
+                data.append([item_date, item_rank, "买入", item_point, item_count, total_count])
             elif 0 <= item_rank < 20:
                 # 买入2份
-                item_count = (_money_per*2) * (1-tax) / item_point
+                item_count = (_money_per * 2) * (1 - tax) / item_point
                 total_count += item_count
                 data.append([item_date, item_rank, "买入", item_point, item_count, total_count])
             else:
                 data.append([item_date, item_rank, "/", item_point, 0, total_count])
-
 
         result_df = pd.DataFrame(data, columns=["日期", "百分位", "操作", "单价", "数量", "累计数量"])
 

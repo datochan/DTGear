@@ -6,10 +6,11 @@
     :copyright: (c) 18/10/19 by datochan.
 """
 import json
+
 import pandas as pd
 import pymongo
-from pymongo.database import Database
 from pymongo.collection import Collection
+from pymongo.database import Database
 
 from configure import config
 
@@ -37,8 +38,7 @@ class MongoDBClient:
         """查询股票列表 todo: 待完善 暂时没有分页需求, 后补"""
         return list(self.__stock.find(_filter, sort=_sort, projection=_fields))
 
-
-    def insert_json(self, _dataframe:pd.DataFrame):
+    def insert_json(self, _dataframe: pd.DataFrame):
         if _dataframe.empty:
             return
         self.__stock.insert_many(json.loads(_dataframe.to_json(orient='records')))
@@ -55,6 +55,7 @@ class MongoDBClient:
             self.__stock.update_one(_filter, {'$set': _value}, upsert=_upsert)
         except Exception as ex:
             print(str(ex))
+
 
 if __name__ == "__main__":
     db_client = MongoDBClient(config.get("db").get("mongodb"), config.get("db").get("database"))

@@ -24,6 +24,7 @@ class ResponseHeader(object):
         # BodyMaxLength  uint16    // 解压所需要的空间大小
     """
     __identity = "<LB2HB3H"
+
     def __init__(self):
         self.pkg_flag = 0
         self.is_compress = False  # 用于标识封包体是否使用zlib压缩
@@ -39,7 +40,7 @@ class ResponseHeader(object):
         return struct.calcsize(cls.__identity)
 
     @classmethod
-    def parse(cls, data:Buffer):
+    def parse(cls, data: Buffer):
         """
         解析应答封包
         :param data:
@@ -75,6 +76,7 @@ class ResponseMarketInfo:
     #     DomainUrl  [18]byte   // 18s: domain
     """
     __identity = "<10LH4LLHL21s18s"
+
     def __init__(self):
         self.date_sz = 0
         self.data_sh = 0
@@ -88,7 +90,7 @@ class ResponseMarketInfo:
         return struct.calcsize(cls.__identity)
 
     @classmethod
-    def parse(cls, data:Buffer):
+    def parse(cls, data: Buffer):
         """
         解析
         :param data:
@@ -120,6 +122,7 @@ class ResponseStockBase:
     #     Bonus2       uint16     // 权息数量
     """
     __identity = "<6sH8sLBf2H"
+
     def __init__(self):
         self.code = ""
         self.name = ""
@@ -135,7 +138,7 @@ class ResponseStockBase:
         return struct.calcsize(cls.__identity)
 
     @classmethod
-    def parse(cls, data:Buffer):
+    def parse(cls, data: Buffer):
         """
         解析
         :param data:
@@ -156,19 +159,22 @@ class ResponseStockBase:
 
         return stock_base
 
+
 class ResponseStockBonus:
     """
     #     Market       byte    // B: 市场(market): 0深, 1沪
     #     Code         [6]byte // 6s: 股票代码(code)
     #     Unknown1     byte    // B: 股票代码的0结束符(python解析麻烦,所以单独解析出来不使用)
     #     Date         int32   // L: 日期(date)
-    #     Type         byte    // B: 分红配股类型(type): 1标识除权除息, 2: 配送股上市; 3: 非流通股上市; 4:未知股本变动; 5: 股本变动,6: 增发新股, 7: 股本回购, 8: 增发新股上市, 9:转配股上市
+    #     Type         byte    // B: 分红配股类型(type): 1标识除权除息, 2: 配送股上市; 3: 非流通股上市; 4:未知股本变动; 5: 股本变动,
+                                        6: 增发新股, 7: 股本回购, 8: 增发新股上市, 9:转配股上市
     #     Money        float32 // 送现金
     #     Price        float32 // 配股价
     #     Count        float32 // 送股数
     #     Rate         float32 // 配股比例
     """
     __identity = "<B6sBLB4f"
+
     def __init__(self):
         self.market = 0
         self.code = ""
@@ -184,7 +190,7 @@ class ResponseStockBonus:
         return struct.calcsize(cls.__identity)
 
     @classmethod
-    def parse(cls, data:Buffer):
+    def parse(cls, data: Buffer):
         """
         解析
         :param data:
@@ -220,6 +226,7 @@ class ResponseStockDays:
     #      Unknown1   uint32
     """
     __identity = "<IIIIIfII"
+
     def __init__(self):
         self.date = ""
         self.open = 0.0
@@ -235,7 +242,7 @@ class ResponseStockDays:
         return struct.calcsize(cls.__identity)
 
     @classmethod
-    def parse(cls, data:Buffer, _fund:bool=False):
+    def parse(cls, data: Buffer, _fund: bool = False):
         """
         解析
         :param data:

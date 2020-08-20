@@ -28,7 +28,7 @@ class TdxReportClient(TCPClient):
         self.add_handler(0, self.on_default_handler)
 
     @staticmethod
-    def on_default_handler(header:ResponseHeader, body:Buffer):
+    def on_default_handler(header: ResponseHeader, body: Buffer):
         """
         如果没有匹配处理器则由此处理
         :param header:
@@ -37,15 +37,15 @@ class TdxReportClient(TCPClient):
         """
         print("收到未知封包, event_id = %d, content: %s." % (header.event_id, str(binascii.b2a_hex(body.bytes()))))
 
-    def on_report_list(self, header:ResponseHeader, body:Buffer):
+    def on_report_list(self, header: ResponseHeader, body: Buffer):
         body.read_format("<I")
         content = body.bytes().decode("utf-8")
 
         self.cw_list = content.split('\n')
         self.__callback_proc()
 
-    def on_download(self, header:ResponseHeader, body:Buffer):
-        length = body.read_format("<I")[0]   # 移除body大小字段, 只保留文件内容
+    def on_download(self, header: ResponseHeader, body: Buffer):
+        length = body.read_format("<I")[0]  # 移除body大小字段, 只保留文件内容
         content = body.bytes()
 
         if self.current_report_offset is 0:
@@ -75,7 +75,7 @@ class TdxReportClient(TCPClient):
 
         for idx in range(len(self.cw_list), 0, -1):
             # 按时间倒叙
-            item = self.cw_list[idx-1]
+            item = self.cw_list[idx - 1]
             item = item.replace('\r', '')
             if len(item) <= 5:
                 none_total += 1
@@ -110,7 +110,6 @@ class TdxReportClient(TCPClient):
 
         self.close()
 
-
     def handle_connect(self):
         print("开始连接...")
         req = request.gen_report_download("")
@@ -140,17 +139,16 @@ class TdxReportClient(TCPClient):
                 H: 事件标识，靠此字段可以确定封包的类别
                 2H: 分别是封包长度, 解压所需要的空间大小
                 """
-                objHeader = ResponseHeader.parse(Buffer(header))
+                obj_header = ResponseHeader.parse(Buffer(header))
 
-                if self.in_buffer.length() < objHeader.body_length+header_size:
+                if self.in_buffer.length() < obj_header.body_length + header_size:
                     # 如果封包不足则等待下一次接收后继续再判断，直至封包完整再继续解析
                     break
 
                 self.in_buffer.read_bytes(header_size)
-                compress_data = self.in_buffer.read_bytes(objHeader.body_length)
+                compress_data = self.in_buffer.read_bytes(obj_header.body_length)
 
-
-                if objHeader.is_compress:
+                if obj_header.is_compress:
                     decompiler = zlib.decompressobj()
                     content = decompiler.decompress(compress_data)
                 else:
@@ -158,12 +156,12 @@ class TdxReportClient(TCPClient):
 
                 # print("收到 content: %s." % str(binascii.b2a_hex(content)))
 
-                handle_proc = self.get_handler(objHeader.event_id)
+                handle_proc = self.get_handler(obj_header.event_id)
 
                 if handle_proc is None:
-                    self.get_handler(0)(header=objHeader, body=Buffer(content))
+                    self.get_handler(0)(header=obj_header, body=Buffer(content))
                 else:
-                    handle_proc(header=objHeader, body=Buffer(content))
+                    handle_proc(header=obj_header, body=Buffer(content))
 
             except StopIteration:
                 sys.exit()

@@ -5,7 +5,8 @@ from configure import config
 
 REPORT_PUBLISH_BUFFER = pd.DataFrame()
 
-def report_with_plan(_date:int, _str_code=None):
+
+def report_with_plan(_date: int, _str_code=None):
     """根据财报的标准时间获取财报信息"""
     global REPORT_PUBLISH_BUFFER
 
@@ -13,14 +14,15 @@ def report_with_plan(_date:int, _str_code=None):
         REPORT_PUBLISH_BUFFER = pd.read_csv(config.get("files").get("reports"), header=0)
 
     report_date = date.report_date_with(_date)
-    filter_df = REPORT_PUBLISH_BUFFER[(REPORT_PUBLISH_BUFFER["date"]==int(report_date)) &
-                                      (REPORT_PUBLISH_BUFFER["code"]==int(_str_code))]
+    filter_df = REPORT_PUBLISH_BUFFER[(REPORT_PUBLISH_BUFFER["date"] == int(report_date)) &
+                                      (REPORT_PUBLISH_BUFFER["code"] == int(_str_code))]
     if filter_df is None or len(filter_df) <= 0:
         return None
 
     return filter_df.loc[filter_df.index.values[0]]
 
-def report_with_act(_date:int, _str_code=None):
+
+def report_with_act(_date: int, _str_code=None):
     """
     取指定日期中实际最近的一次财报信息
     :param _date:
@@ -79,10 +81,10 @@ def lyr_with(_date, _stock, _price):
     """
     (_year, _quarter) = date.quarter(_date)
 
-    _year_report = report_with_plan(int("%d1231" % (_year-1)), _stock)
+    _year_report = report_with_plan(int("%d1231" % (_year - 1)), _stock)
     if _year_report is None or _year_report["publish"] > _date:
         # 去年的年报还没披露, 取前年的
-        _year_report = report_with_plan(int("%d1231" % (_year-2)), _stock)
+        _year_report = report_with_plan(int("%d1231" % (_year - 2)), _stock)
         if _year_report is None:
             # 前年还没上市，也没财报信息，PE无效
             return 0.0
@@ -98,9 +100,8 @@ def lyr_with(_date, _stock, _price):
         return _price / _year_report['eps']
 
     # 因股本变动会导致eps被稀释
-    lyr_eps = _year_report['eps'] * (_year_report['tcs']/_cur_item['tcs'])
+    lyr_eps = _year_report['eps'] * (_year_report['tcs'] / _cur_item['tcs'])
     return 0.0 if lyr_eps == 0 else _price / lyr_eps
-
 
 
 def ttm_with(_date, _stock, _price):
@@ -128,8 +129,8 @@ def ttm_with(_date, _stock, _price):
 
     if _report_quarter == 2:
         # 取到的财报是三季报, 还需要 上一年年报 - 上一年三季报 + 当前的三季报
-        _year_report = report_with_plan(int("%d1231" % (__year-1)), _stock)
-        _q3_report = report_with_plan(int("%d0930" % (__year-1)), _stock)
+        _year_report = report_with_plan(int("%d1231" % (__year - 1)), _stock)
+        _q3_report = report_with_plan(int("%d0930" % (__year - 1)), _stock)
         if _year_report is None or _q3_report is None:
             # 上市不足一年
             return _price / (_cur_item['np'] / _cur_item['tcs'])
@@ -139,8 +140,8 @@ def ttm_with(_date, _stock, _price):
 
     if _report_quarter == 1:
         # 当前是当前年中报, 还需要 上一年年报 - 上一年年中报 + 当前年中报
-        _year_report = report_with_plan(int("%d1231" % (__year-1)), _stock)
-        _q2_report = report_with_plan(int("%d0630" % (__year-1)), _stock)
+        _year_report = report_with_plan(int("%d1231" % (__year - 1)), _stock)
+        _q2_report = report_with_plan(int("%d0630" % (__year - 1)), _stock)
         if _year_report is None or _q2_report is None:
             # 上市不足一年
             return _price / (_cur_item['np'] / _cur_item['tcs'])
@@ -150,8 +151,8 @@ def ttm_with(_date, _stock, _price):
 
     if _report_quarter == 0:
         # 当前是一季报, 还需要 上一年年报 - 上一年一季报 + 当前的一季报
-        _year_report = report_with_plan(int("%d1231" % (__year-1)), _stock)
-        _q1_report = report_with_plan(int("%d0331" % (__year-1)), _stock)
+        _year_report = report_with_plan(int("%d1231" % (__year - 1)), _stock)
+        _q1_report = report_with_plan(int("%d0331" % (__year - 1)), _stock)
         if _year_report is None or _q1_report is None:
             # 上市不足一年
             return _price / (_cur_item['np'] / _cur_item['tcs'])

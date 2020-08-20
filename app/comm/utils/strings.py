@@ -32,5 +32,6 @@ def stock_state(state):
         return "不确定"
     return "未知"
 
+
 if __name__ == '__main__':
     print(random_mac_address())

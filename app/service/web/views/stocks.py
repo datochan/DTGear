@@ -8,10 +8,10 @@
 """
 
 import json
+
 import numpy as np
 import pandas as pd
 import pymongo
-
 from flask import request
 from flask_mako import render_template
 
@@ -29,12 +29,12 @@ def stock(_code):
     _market = 1 if _code[:2] == "SH" else 0
     _st_code = _code[2:]
 
-    stockModel = StockModel()
+    stock_model = StockModel()
 
     _filter = {"code": _st_code, "market": _market, "date": {"$gte": date.datetime_to_str(date.years_ago(10))}}
 
-    _idx_list = stockModel.stock_list(_filter=_filter, _sort=[("date", pymongo.ASCENDING)],
-                                      _fields={"date":1, "name":1, "pe_ttm": 1, "pb": 1, "dr": 1})
+    _idx_list = stock_model.stock_list(_filter=_filter, _sort=[("date", pymongo.ASCENDING)],
+                                      _fields={"date": 1, "name": 1, "pe_ttm": 1, "pb": 1, "dr": 1})
 
     item_df = pd.DataFrame(list(_idx_list), columns=["date", "name", "pe_ttm", "pb", "dr"])
     item_df = item_df.dropna(0)
@@ -76,7 +76,7 @@ def stock(_code):
 
 
 @webapp.route('/stock/<_code>/pe.json', methods=['GET', 'POST'])
-def stock_pe_json(_code:str=None):
+def stock_pe_json(_code: str = None):
     if _code is None or len(_code) < 8:
         return "error"
     _code = _code.upper()
@@ -93,7 +93,7 @@ def stock_pe_json(_code:str=None):
         _filter["date"] = {"$gte": from_date}
 
     _idx_list = stockModel.stock_list(_filter=_filter, _sort=[("date", pymongo.ASCENDING)],
-                                      _fields={"date":1, "pe_ttm": 1, "close":1})
+                                      _fields={"date": 1, "pe_ttm": 1, "close": 1})
 
     item_df = pd.DataFrame(list(_idx_list), columns=["date", "pe_ttm", "close"])
     item_df = item_df.dropna(0)
@@ -136,7 +136,7 @@ def stock_pb_json(_code=None):
         _filter["date"] = {"$gte": from_date}
 
     _idx_list = stockModel.stock_list(_filter=_filter, _sort=[("date", pymongo.ASCENDING)],
-                                      _fields={"date":1, "pb": 1, "close":1})
+                                      _fields={"date": 1, "pb": 1, "close": 1})
 
     item_df = pd.DataFrame(list(_idx_list), columns=["date", "pb", "close"])
     item_df = item_df.dropna(0)

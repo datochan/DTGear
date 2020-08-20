@@ -5,8 +5,8 @@
 
     :copyright: (c) 2016-10-26 by datochan.
 """
-import os
 import logging
+import os
 from datetime import datetime
 
 PROJECT_ROOT = os.path.abspath(os.path.dirname(__file__))
@@ -19,7 +19,7 @@ config = {
         [1, "000300", 20050408],
         [1, "000852", 20141017],
         [1, "000905", 20070115],
-        [0, "399005", 20061227], 
+        [0, "399005", 20061227],
         [0, "399006", 20100601]
     ],
     "logger": {
@@ -34,7 +34,8 @@ config = {
                            '&gjqx=0&qxId=hzsylqx&locale=cn_ZH',
         'china_bond_item': 'http://yield.chinabond.com.cn/cbweb-pbc-web/pbc/queryGjqxInfo?&workTime=%s&locale=cn_ZH',
         "server_time": "https://s.thsi.cn/js/chameleon/time.%d.js",  # 用于更新同花顺服务器时间解密cookie信息
-        "report_time": "http://data.10jqka.com.cn/financial/yypl/date/%s/board/ALL/field/stockcode/order/DESC/page/%d/ajax/1/"
+        "report_time": "http://data.10jqka.com.cn/financial/yypl/date/%s"
+                       "/board/ALL/field/stockcode/order/DESC/page/%d/ajax/1/"
     },
     "files": {
         'calendar': "%s/data/calendar.csv" % PROJECT_ROOT,  # 股票交易日历
@@ -43,10 +44,10 @@ config = {
         'stock_a': "%s/data/a.csv" % PROJECT_ROOT,
         'st': "%s/data/st.csv" % PROJECT_ROOT,
         'bonus': "%s/data/bonus.csv" % PROJECT_ROOT,
-        'reports': "%s/data/reports.csv" % PROJECT_ROOT,         # 股票财报目录
+        'reports': "%s/data/reports.csv" % PROJECT_ROOT,  # 股票财报目录
         'report_item': "%s/data/reports/%s.zip",  # 股票财报目录
         'rt_item': "%s/data/reports/rt%s.csv",  # 股票财报目录
-        'index': "%s/data/indexes/%s.csv",    # 指定指数的历史成分列表
+        'index': "%s/data/indexes/%s.csv",  # 指定指数的历史成分列表
         'plots': "%s/data/plots/%s/%d-%s.csv",  # 策略执行结果的保存 粗略方法名/市场-代码.csv
     },
     "tdx": {
@@ -60,7 +61,7 @@ config = {
         "cw_server": {
             # 财务数据
             # calc.tdx.com.cn, calc2.tdx.com.cn
-            "host": "120.76.152.87",   # 101.132.147.181
+            "host": "120.76.152.87",  # 101.132.147.181
             "port": 7709
         },
 
@@ -88,7 +89,7 @@ class Config:
     LOGGER_FILENAME = 'dtgear.log'
     LOGGER_FILEMODE = 'w'
 
-    MONGO_URI = "%s%s"% (config.get("db").get("mongodb"), config.get("db").get("database"))
+    MONGO_URI = "%s%s" % (config.get("db").get("mongodb"), config.get("db").get("database"))
     MAKO_TRANSLATE_EXCEPTIONS = False
 
     @staticmethod

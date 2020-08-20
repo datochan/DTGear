@@ -7,8 +7,10 @@
     :copyright: (c) 2016-1-26 by datochan.
 """
 import os
-from flask import Flask
+
 from flask import Blueprint
+from flask import Flask
+
 from app.comm.lib.extensions import mongo, mako
 from configure import settings
 
@@ -34,12 +36,13 @@ def create_app(config_name=None, modules=None):
         modules = []
 
     app = Flask("DTGear", template_folder=os.path.join(PROJECT_WEB_ROOT, "tpl"),
-                   static_folder=os.path.join(PROJECT_WEB_ROOT, "static"))
+                static_folder=os.path.join(PROJECT_WEB_ROOT, "static"))
     app.config.from_object(settings.get(config_name, "default"))
 
     configure_extensions(app)
     configure_modules(app, modules)
 
     return app
+
 
 from . import views
