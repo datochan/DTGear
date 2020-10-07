@@ -86,6 +86,7 @@ def a():
     result_df = pd.DataFrame(result_list, columns=['date', 'pe', 'pb', 'roe', 'dr'])
     result_df.to_csv(config.get("files").get("stock_a"), index=False,
                      mode="a+", header=False, encoding='utf8', float_format="%.6f")
+    click.echo("整个A股的估值信息计算完毕...")
 
 
 def _indexes(idx_market, idx_code, start_date, calendar_df):

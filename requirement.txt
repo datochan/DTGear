@@ -1,3 +1,4 @@
+setuptools==45.2.0
 blowfish==0.6.1
 Click==7.0
 cssselect==1.0.3
