@@ -62,19 +62,19 @@ config = {
             # "host": "121.14.110.200",
             # "port": 443
             # # 金融终端V7.43
-            "host": "119.147.171.206",
-            "port": 80
+            "host": "221.194.181.176",
+            "port": 7709
         },
         "cw_server": {
             # 财务数据
             # calc.tdx.com.cn, calc2.tdx.com.cn
-            "host": "120.76.152.87",  # 101.132.147.181
+            "host": "120.76.152.87",   # 101.132.147.181
             "port": 7709
         },
 
     },
     "db": {
-        "mongodb": "mongodb://dtgear:a11111111@192.168.0.10:27017/",
+        "mongodb": "mongodb://dtgear:a11111111@127.0.0.1:27017/",
         "database": "DTGear"
     }
 }
