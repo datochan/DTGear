@@ -83,18 +83,18 @@ def report():
 
 @update.command(help="更新财报披露时间")
 @click.option('--all', type=click.BOOL, default=False, help='是否更新全量数据, 默认只更新当前季度')
-def rt(is_all):
+def rt(all):
     """
     年报: xxxx-12-31 至 xxxx-04-30
     一季: xxxx-03-31 至 xxxx-04-30
     年中: xxxx-06-30 至 xxxx-08-31
     三季: xxxx-09-30 至 xxxx-10-31
-    :param is_all:
+    :param all:
     :return:
     """
     print("准备更新财报披露时间数据...")
     date = None
-    if is_all is False:
+    if all is False:
         # 如果不更新全量数据则只更新今天所属季度的部分数据
         date = "".join(time.strftime('%Y%m%d', time.localtime(time.time())))
 
